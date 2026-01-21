@@ -1,0 +1,28 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# async db
+SQLAlchemy==2.0.36
+asyncpg==0.30.0
+
+# redis async
+redis==5.2.1
+
+# settings
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# HTTP utils
+orjson==3.10.12
+
+# sofascore wrapper (async) + playwright dependency
+sofascore-wrapper==1.1.1
+playwright==1.50.0
+
+# tests
+pytest==8.3.4
+pytest-asyncio==0.25.2
+httpx==0.28.1
+
+ruff==0.8.4
+black==24.10.0

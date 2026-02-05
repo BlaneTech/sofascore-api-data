@@ -1,48 +1,243 @@
-# ⚽ football-api — SofaScore REST API (sofascore-wrapper)
+# 🏆 GOGAinde-Data
 
-Cette API est basée sur **sofascore-wrapper** (async, Playwright/Chromium). :contentReference[oaicite:6]{index=6}
+Plateforme de collecte et d'analyse de données pour la Coupe d'Afrique des Nations (CAN).
 
-## 🚀 Lancer
+## 📁 Structure du Projet
+
+```
+GOGAinde-Data/
+├── .venv/                  # Environnement virtuel Python
+├── app/                    # Code principal de l'application
+│   ├── api/                # Endpoints et routes API
+│   ├── core/               # Configuration et constantes
+│   │   └── config.py       # Configuration centralisée
+│   ├── db/                 # Gestion de la base de données
+│   │   ├── database.py     # Configuration SQLAlchemy
+│   │   └── models.py       # Modèles de données
+│   ├── schemas/            # Schémas Pydantic / validation
+│   ├── services/           # Logique métier
+│   │   └── scraper/        # Services de scraping Sofascore
+│   │       ├── league_service.py
+│   │       ├── team_service.py
+│   │       ├── fixture_service.py
+│   │       ├── lineup_service.py
+│   │       ├── statistics_service.py
+│   │       └── cup_tree_service.py
+│   ├── utils/              # Fonctions utilitaires
+│   │   └── db_helpers.py
+│   └── main.py             # Point d'entrée de l'application
+├── docker/                 # Fichiers liés à Docker
+├── notebooks/              # Jupyter notebooks / analyses
+├── pipeline/               # Scripts de pipeline
+│   └── ingest_afcon.py     # Script d'ingestion AFCON
+├── tests/                  # Tests unitaires et d'intégration
+├── .env                    # Variables d'environnement
+├── .env.example            # Exemple de variables d'environnement
+├── .gitignore              # Fichiers ignorés par Git
+├── docker-compose.yml      # Configuration Docker Compose
+├── Makefile                # Commandes automatisées
+├── README.md               # Documentation du projet
+└── requirements.txt        # Dépendances Python
+```
+
+## Installation
+
+### 1. Cloner le repository
+
 ```bash
+git clone <repo-url>
+cd GOGAinde-Data
+```
+
+### 2. Créer l'environnement virtuel
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# ou
+.venv\Scripts\activate  # Windows
+```
+
+### 3. Installer les dépendances
+
+```bash
+make install
+# ou
+pip install -r requirements.txt
+```
+
+### 4. Configuration
+
+```bash
+# Copier le fichier .env.example
 cp .env.example .env
-docker compose up --build
+
+# Éditer .env avec vos paramètres
+nano .env
 ```
 
-Docs OpenAPI (auto FastAPI) :
-- http://localhost:8000/docs
-- http://localhost:8000/redoc
+### 5. Initialiser la base de données
 
-## Endpoints principaux
-- GET  /api/health
-- GET  /api/sofa/search?q=saka&sport=football
-- GET  /api/sofa/player/{player_id}
-- GET  /api/sofa/team/{team_id}
-- GET  /api/sofa/match/{match_id}
-
-Persistance (JSONB, Postgres) :
-- POST /api/store/player/{player_id}
-- POST /api/store/team/{team_id}
-- POST /api/store/match/{match_id}
-
-Rate limit:
-- par IP, par minute (config `RATE_LIMIT_PER_MINUTE`)
-
-Cache Redis:
-- TTL `SOFA_CACHE_TTL` (seconds)
-
-## Admin (si activé)
-- POST /api/admin/warmup (header \`X-API-KEY\`)
-
-Ex:
-\`\`\`bash
-curl -X POST "http://localhost:8000/api/admin/warmup?q=saka&sport=football" \\
-  -H "X-API-KEY: change-this-key"
-\`\`\`
-
-## Tests
 ```bash
-docker compose run --rm api pytest -q
+make db-init
 ```
 
-## Note Playwright
-Le module requiert Playwright + installation Chromium (déjà géré dans le Dockerfile). :contentReference[oaicite:7]{index=7}
+## Base de Données
+
+### Modèles disponibles
+
+- **League** : Compétitions (CAN, qualifications, etc.)
+- **Season** : Saisons par compétition
+- **Team** : Équipes nationales
+- **Manager** : Entraîneurs ✨
+- **TeamManager** : Historique entraîneurs par équipe ✨
+- **Player** : Joueurs
+- **Fixture** : Matchs
+- **MatchEvent** : Événements de match (buts, cartons, etc.)
+- **Lineup** : Compositions d'équipe
+- **MatchStatistics** : Statistiques de match ✨ (avec contrainte unique)
+- **PlayerStatistics** : Statistiques joueur
+- **TeamStatistics** : Statistiques équipe
+- **Standing** : Classements
+
+## 🏃 Utilisation
+
+### Lancer le scraping AFCON
+
+```bash
+# Via Makefile
+make scrape-afcon
+
+# Ou directement
+python pipeline/ingest_afcon.py
+```
+
+### Lancer l'API
+
+```bash
+make dev
+# L'API sera disponible sur http://localhost:8000
+# Documentation: http://localhost:8000/docs
+```
+
+### Lancer les tests
+
+```bash
+make test
+```
+
+### Lancer Jupyter
+
+```bash
+make notebook
+```
+
+## 🐳 Docker
+
+### Lancer avec Docker Compose
+
+```bash
+make docker-up
+```
+
+### Voir les logs
+
+```bash
+make docker-logs
+```
+
+### Arrêter les conteneurs
+
+```bash
+make docker-down
+```
+
+## 📝 Commandes Make Disponibles
+
+```bash
+make help              # Affiche l'aide
+make install           # Installe les dépendances
+make dev               # Lance l'application en mode dev
+make test              # Lance les tests
+make clean             # Nettoie les fichiers temporaires
+make db-init           # Initialise la base de données
+make db-migrate        # Lance les migrations Alembic
+make scrape-afcon      # Lance le scraping AFCON
+make docker-up         # Lance les conteneurs Docker
+make docker-down       # Arrête les conteneurs Docker
+make docker-logs       # Affiche les logs Docker
+make notebook          # Lance Jupyter
+```
+
+## 🔧 Architecture
+
+### Services de Scraping
+
+Les services de scraping sont organisés par responsabilité :
+
+- **league_service** : Gestion des leagues et seasons
+- **team_service** : Gestion des équipes et joueurs
+- **fixture_service** : Gestion des matchs
+- **lineup_service** : Gestion des compositions
+- **statistics_service** : Gestion des statistiques
+- **cup_tree_service** : Gestion des phases finales
+
+### Flux d'ingestion
+
+```
+1. Recherche compétition AFCON
+2. Récupération saisons et rounds
+3. Pour chaque round:
+   - Ingestion league/season
+   - Ingestion équipes
+   - Ingestion joueurs
+   - Ingestion matchs
+   - Ingestion lineups
+   - Ingestion statistiques
+4. Ingestion phases finales (cup tree)
+```
+
+## 🎯 Fonctionnalités
+
+✅ Scraping complet de la CAN  
+✅ Gestion des équipes et joueurs  
+✅ Compositions de match  
+✅ Statistiques détaillées  
+✅ Phases de groupes et phases finales  
+✅ API REST (FastAPI)  
+✅ Base de données PostgreSQL  
+✅ Contraintes d'intégrité  
+✅ Architecture modulaire  
+✅ Tests automatisés  
+✅ Docker support  
+
+## 🔒 Contraintes d'Intégrité
+
+Les contraintes suivantes garantissent la qualité des données :
+
+- **MatchStatistics** : (fixture_id, team_id) unique → 2 enregistrements par match
+- **Lineup** : (fixture_id, team_id, player_id) unique → Pas de doublons
+- **Standing** : (season_id, team_id, group) unique
+- **TeamManager** : (team_id, manager_id, start_date) unique
+
+## 📈 Prochaines Étapes
+
+- [ ] Ajouter endpoints API pour consultation
+- [ ] Créer dashboards de visualisation
+- [ ] Ajouter scraping en temps réel
+- [ ] Implémenter caching
+- [ ] Ajouter authentification API
+- [ ] Créer analyses prédictives
+- [ ] Exporter vers différents formats
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une PR.
+
+
+## 👥 Auteurs
+
+ACCEL-TECH
+www.accel-tech.net
+
+---

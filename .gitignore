@@ -7,6 +7,9 @@ utils/__pycache__/
 db/__pycache__/
 pipelines/__pycache__/
 notebooks/__pycache__
+pipelines/_backups/
+pipelines/new_models.py
+pipelines/ingestion.py
 notebooks/
 *.py[cod]
 .pytest_cache/
@@ -32,3 +35,5 @@ ENV/
 Thumbs.db
 
 postgres_data/
+
+

@@ -1,19 +1,16 @@
-
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Boolean, ForeignKey, Date, Float, Text, Enum,
-    UniqueConstraint
+    Column, Integer, String, DateTime, Boolean, ForeignKey, JSON, Date, Float, Text, Enum,
+    create_engine
 )
-from sqlalchemy.orm import relationship
-# from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 import enum
 import asyncio
 
-from app.core.config import settings
-
 Base = declarative_base()
 
+DATABASE_URL = "postgresql+asyncpg://football_user:password@localhost:5432/football_db"
 
 # ================= ENUMS =================
 class TournamentType(str, enum.Enum):
@@ -24,7 +21,6 @@ class TournamentType(str, enum.Enum):
     FRIENDLY = "friendly"
     OTHER = "other"
 
-
 class MatchStatus(str, enum.Enum):
     NOT_STARTED = "notstarted"
     IN_PROGRESS = "inprogress"
@@ -33,7 +29,6 @@ class MatchStatus(str, enum.Enum):
     CANCELLED = "cancelled"
     ABANDONED = "abandoned"
 
-
 class EventType(str, enum.Enum):
     GOAL = "goal"
     YELLOW_CARD = "yellowCard"
@@ -41,7 +36,6 @@ class EventType(str, enum.Enum):
     SUBSTITUTION = "substitution"
     VAR = "var"
     PENALTY_MISSED = "penaltyMissed"
-
 
 # ================= LEAGUES / SEASONS =================
 class League(Base):
@@ -60,14 +54,14 @@ class League(Base):
 
     seasons = relationship("Season", back_populates="league")
     fixtures = relationship("Fixture", back_populates="league")
-
+    # is_female = Column(Boolean, default=False)
 
 class Season(Base):
     __tablename__ = "seasons"
 
     id = Column(Integer, primary_key=True)
     sofascore_id = Column(Integer, unique=True, nullable=False, index=True)
-    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False, index=True)
+    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False)
     year = Column(String(20), nullable=False)
     name = Column(String(255))
     start_date = Column(Date)
@@ -77,7 +71,6 @@ class Season(Base):
     league = relationship("League", back_populates="seasons")
     fixtures = relationship("Fixture", back_populates="season")
     standings = relationship("Standing", back_populates="season")
-
 
 # ================= TEAMS =================
 class Team(Base):
@@ -93,6 +86,10 @@ class Team(Base):
     national = Column(Boolean, default=False)
     logo_url = Column(String(500))
     founded = Column(Integer)
+    # is_female = Column(Boolean, default=False)
+    # venue_name = Column(String(255))
+    # venue_city = Column(String(100))
+    # venue_capacity = Column(Integer)
 
     primary_color = Column(String(7))
     secondary_color = Column(String(7))
@@ -100,56 +97,13 @@ class Team(Base):
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
+    # raw_data = Column(JSON)
+
     home_fixtures = relationship("Fixture", foreign_keys="Fixture.home_team_id", back_populates="home_team")
     away_fixtures = relationship("Fixture", foreign_keys="Fixture.away_team_id", back_populates="away_team")
     players = relationship("Player", back_populates="team")
     match_statistics = relationship("MatchStatistics", back_populates="team")
     team_statistics = relationship("TeamStatistics", back_populates="team")
-    team_managers = relationship("TeamManager", back_populates="team")
-
-
-# ================= MANAGERS =================
-class Manager(Base):
-    __tablename__ = "managers"
-
-    id = Column(Integer, primary_key=True)
-    sofascore_id = Column(Integer, unique=True, nullable=False, index=True)
-    
-    name = Column(String(255), nullable=False)
-    slug = Column(String(255))
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    
-    date_of_birth = Column(Date)
-    nationality = Column(String(100))
-    photo_url = Column(String(500))
-    
-    created_at = Column(DateTime, server_default="now()")
-    updated_at = Column(DateTime, onupdate="now()")
-    
-    team_managers = relationship("TeamManager", back_populates="manager")
-
-
-class TeamManager(Base):
-    __tablename__ = "team_managers"
-
-    id = Column(Integer, primary_key=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
-    manager_id = Column(Integer, ForeignKey("managers.id"), nullable=False, index=True)
-    
-    start_date = Column(Date)
-    end_date = Column(Date, nullable=True) 
-    is_current = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime, server_default="now()")
-    
-    __table_args__ = (
-        UniqueConstraint('team_id', 'manager_id', 'start_date', name='uq_team_manager_period'),
-    )
-    
-    team = relationship("Team", back_populates="team_managers")
-    manager = relationship("Manager", back_populates="team_managers")
-
 
 # ================= PLAYERS =================
 class Player(Base):
@@ -157,7 +111,7 @@ class Player(Base):
 
     id = Column(Integer, primary_key=True)
     sofascore_id = Column(Integer, unique=True, nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True, index=True)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
 
     name = Column(String(255), nullable=False)
     slug = Column(String(255))
@@ -169,7 +123,9 @@ class Player(Base):
     jersey_number = Column(Integer)
 
     date_of_birth = Column(Date)
+    # nationality = Column(String(100))
     height = Column(Integer)
+    # weight = Column(Integer)
     preferred_foot = Column(String(20))
 
     photo_url = Column(String(500))
@@ -177,11 +133,12 @@ class Player(Base):
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
+    # raw_data = Column(JSON)
+
     team = relationship("Team", back_populates="players")
     statistics = relationship("PlayerStatistics", back_populates="player")
     events = relationship("MatchEvent", foreign_keys="MatchEvent.player_id", back_populates="player")
     assists = relationship("MatchEvent", foreign_keys="MatchEvent.assist_player_id", back_populates="assist_player")
-
 
 # ================= FIXTURES =================
 class Fixture(Base):
@@ -190,11 +147,11 @@ class Fixture(Base):
     id = Column(Integer, primary_key=True)
     sofascore_id = Column(Integer, unique=True, nullable=False, index=True)
 
-    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False, index=True)
-    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False, index=True)
+    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False)
+    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False)
 
-    home_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
-    away_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
+    home_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    away_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     date = Column(DateTime, nullable=False, index=True)
     timestamp = Column(Integer)
@@ -217,6 +174,10 @@ class Fixture(Base):
     home_score_normaltime = Column(Integer)
     away_score_normaltime = Column(Integer)
 
+    # venue = Column(String(255))
+    # city = Column(String(100))
+    # referee = Column(String(255))
+
     is_live = Column(Boolean, default=False)
     has_lineups = Column(Boolean, default=False)
     has_statistics = Column(Boolean, default=False)
@@ -224,6 +185,8 @@ class Fixture(Base):
 
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
+
+    # raw_data = Column(JSON)
 
     league = relationship("League", back_populates="fixtures")
     season = relationship("Season", back_populates="fixtures")
@@ -233,16 +196,15 @@ class Fixture(Base):
     lineups = relationship("Lineup", back_populates="fixture")
     match_statistics = relationship("MatchStatistics", back_populates="fixture")
 
-
 # ================= EVENTS =================
 class MatchEvent(Base):
     __tablename__ = "match_events"
 
     id = Column(Integer, primary_key=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
-    player_id = Column(Integer, ForeignKey("players.id"), nullable=True, index=True)
-    assist_player_id = Column(Integer, ForeignKey("players.id"), nullable=True, index=True)
+    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=True)
+    assist_player_id = Column(Integer, ForeignKey("players.id"), nullable=True)
 
     type = Column(Enum(EventType), nullable=False)
     minute = Column(Integer, nullable=False)
@@ -252,21 +214,22 @@ class MatchEvent(Base):
 
     fixture = relationship("Fixture", back_populates="events")
     player = relationship("Player", foreign_keys=[player_id], back_populates="events")
-    assist_player = relationship("Player", foreign_keys=[assist_player_id], back_populates="assists")
+    # assist_player = relationship("Player", foreign_keys=[assist_player_id])
     team = relationship("Team")
-
+    assist_player = relationship("Player", foreign_keys=[assist_player_id], back_populates="assists")
 
 # ================= LINEUPS =================
 class Lineup(Base):
     __tablename__ = "lineups"
 
     id = Column(Integer, primary_key=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
-    player_id = Column(Integer, ForeignKey("players.id"), nullable=False, index=True)
+    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=False)
 
     formation = Column(String(10))
     position = Column(String(50))
+    # grid = Column(String(5))
     starter = Column(Boolean, default=True)
 
     rating = Column(Float)
@@ -274,29 +237,24 @@ class Lineup(Base):
     captain = Column(Boolean, default=False)
     substitute = Column(Boolean, default=False)
 
-    __table_args__ = (
-        UniqueConstraint('fixture_id', 'team_id', 'player_id', name='uq_lineup_fixture_team_player'),
-    )
-
     fixture = relationship("Fixture", back_populates="lineups")
     team = relationship("Team")
     player = relationship("Player")
-
 
 # ================= STATISTICS =================
 class MatchStatistics(Base):
     __tablename__ = "match_statistics"
 
     id = Column(Integer, primary_key=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
+    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     shots_on_goal = Column(Integer)
     shots_off_goal = Column(Integer)
     total_shots = Column(Integer)
     blocked_shots = Column(Integer)
     shots_inside_box = Column(Integer)
-    shots_outside_box = Column(Integer)
+    shots_outside_box = Column(Integer) # last line
     fouls = Column(Integer)
     corners = Column(Integer)
     offsides = Column(Integer)
@@ -324,24 +282,18 @@ class MatchStatistics(Base):
     dribble_success = Column(Float)
     tackles_won = Column(Float)
     tackles_lost = Column(Float)
-    
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
-    __table_args__ = (
-        UniqueConstraint('fixture_id', 'team_id', name='uq_match_stats_fixture_team'),
-    )
-
     fixture = relationship("Fixture", back_populates="match_statistics")
     team = relationship("Team", back_populates="match_statistics")
-
 
 class PlayerStatistics(Base):
     __tablename__ = "player_statistics"
 
     id = Column(Integer, primary_key=True)
-    player_id = Column(Integer, ForeignKey("players.id"), nullable=False, index=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=False)
+    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False)
 
     rating = Column(Float)
     minutes_played = Column(Integer)
@@ -363,14 +315,12 @@ class PlayerStatistics(Base):
     updated_at = Column(DateTime, onupdate="now()")
 
     player = relationship("Player", back_populates="statistics")
-    fixture = relationship("Fixture")
-
 
 class TeamStatistics(Base):
     __tablename__ = "team_statistics"
 
     id = Column(Integer, primary_key=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     total_matches = Column(Integer, default=0)
     wins = Column(Integer, default=0)
@@ -386,14 +336,13 @@ class TeamStatistics(Base):
 
     team = relationship("Team", back_populates="team_statistics")
 
-
 class Standing(Base):
     __tablename__ = "standings"
 
     id = Column(Integer, primary_key=True)
     sofascore_id = Column(Integer, unique=True, nullable=False, index=True)
-    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
+    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     group = Column(String(100))
     rank = Column(Integer)
@@ -409,25 +358,21 @@ class Standing(Base):
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
-    __table_args__ = (
-        UniqueConstraint('season_id', 'team_id', 'group', name='uq_standing_season_team_group'),
-    )
-
     season = relationship("Season", back_populates="standings")
     team = relationship("Team", foreign_keys=[team_id])
 
 
 # ================= CREATE SCHEMA =================
 async def create_schema():
-    """Crée le schéma de la base de données"""
-    engine = create_async_engine(settings.DATABASE_URL, echo=True)
+    engine = create_async_engine(DATABASE_URL, echo=True)
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
     
     await engine.dispose()
-    print("✅ Database schema created successfully!")
+    print(" Database schema created successfully!")
 
 
 if __name__ == "__main__":

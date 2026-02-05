@@ -1,20 +1,29 @@
 import asyncio
+import sys
+from pathlib import Path
+
+# Ajouter le répertoire parent au path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from sofascore_wrapper.api import SofascoreAPI
 from sofascore_wrapper.search import Search
 from sofascore_wrapper.league import League
 from sofascore_wrapper.match import Match
 
-from db.database import async_session_factory
-from db.models import League as LeagueModel, Season, Fixture
-from services import (
+from app.db import AsyncSessionLocal
+from app.db.models import League as LeagueModel, Season, Fixture
+from app.services.scraper import (
     ingest_league, ingest_season, ingest_team, ingest_players_for_team,
     ingest_fixture, ingest_lineups, ingest_match_statistics,
     ingest_cup_tree_matches
 )
-from utils import get_or_create
+from app.utils import get_or_create
 
-for event in match_data["events"]:
-    try:
+
+async def process_round_fixtures(session, api, league_obj, season_obj, match_data):
+    
+    for event in match_data["events"]:
+        try:
             # Ingérer league et season si besoin
             if not league_obj:
                 league_obj = await ingest_league(session, event)
@@ -56,7 +65,7 @@ for event in match_data["events"]:
             
             print(f"✓ Match {event['id']} traité avec succès")
             
-    except Exception as e:
+        except Exception as e:
             print(f"✗ Erreur match {event['id']}: {str(e)}")
             continue
     
@@ -64,32 +73,35 @@ for event in match_data["events"]:
 
 
 async def main():
-   
     api = SofascoreAPI()
 
     try:
         # Rechercher la compétition AFCON
+        print("\n Recherche de la compétition")
         search = Search(api, search_string="Africa Cup of Nations")
         competition = await search.search_all()
         can_id = competition['results'][0]['entity']['id']
+        print(f"✓ AFCON trouvée (ID: {can_id})")
 
         # Récupérer les saisons
         can_league = League(api, can_id)
         can_seasons = await can_league.get_seasons()
         latest_can_season_id = can_seasons[0].get('id') if can_seasons else None
+        print(f"✓ Dernière saison (ID: {latest_can_season_id})")
 
         # Récupérer tous les rounds
         can_rounds = await can_league.rounds(latest_can_season_id)
         rounds_list = [r['round'] for r in can_rounds['rounds']]
+        print(f"✓ {len(rounds_list)} rounds trouvés")
 
-        async with async_session_factory() as session:
+        async with AsyncSessionLocal() as session:
             async with session.begin():
                 league_obj = None
                 season_obj = None
                 
                 # PHASE DE GROUPES
                 print("\n" + "="*50)
-                print("INGESTION PHASE DE GROUPES")
+                print("📥 INGESTION PHASE DE GROUPES")
                 print("="*50 + "\n")
                 
                 for round_number in rounds_list:
@@ -109,7 +121,7 @@ async def main():
 
                 # PHASES FINALES (CUP TREE)
                 print("\n" + "="*50)
-                print("INGESTION PHASES FINALES")
+                print("📥 INGESTION PHASES FINALES")
                 print("="*50 + "\n")
                 
                 if league_obj and season_obj:
@@ -118,7 +130,7 @@ async def main():
                         league_obj, season_obj
                     )
                 else:
-                    print("⚠ Impossible de récupérer league/season pour cup_tree")
+                    print("Impossible de récupérer league/season pour cup_tree")
 
             await session.commit()
             print("\n" + "="*50)

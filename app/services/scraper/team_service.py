@@ -9,7 +9,6 @@ async def ingest_team(session, api, team_data):
     
     team_id = team_data["id"]
     
-    # Récupérer le drapeau de l'équipe
     team_flag_url = None
     try:
         team_wrapper = TeamWrapper(api, team_id)
@@ -43,7 +42,7 @@ async def ingest_players_for_team(session, api, team_sofascore_id, team_db_id):
         squad_data = await team_wrapper.squad()
         
         if not squad_data or 'players' not in squad_data:
-            print(f"⚠ Pas de données squad pour l'équipe {team_sofascore_id}")
+            print(f"Pas de données squad pour l'équipe {team_sofascore_id}")
             return
         
         for player_item in squad_data.get('players', []):
@@ -55,7 +54,7 @@ async def ingest_players_for_team(session, api, team_sofascore_id, team_db_id):
             await ingest_player(session, player_data, team_db_id)
     
     except Exception as e:
-        print(f"⚠ Erreur ingestion joueurs équipe {team_sofascore_id}: {str(e)}")
+        print(f"Erreur ingestion joueurs équipe {team_sofascore_id}: {str(e)}")
 
 
 async def ingest_player(session, player_data, team_db_id=None):
@@ -79,7 +78,6 @@ async def ingest_player(session, player_data, team_db_id=None):
         'photo_url': None,
     }
     
-    # Conversion de la date de naissance
     dob_str = player_data.get('dateOfBirth')
     if dob_str:
         try:

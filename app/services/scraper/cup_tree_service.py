@@ -6,6 +6,7 @@ from app.services.scraper.team_service import ingest_team
 from app.services.scraper.fixture_service import ingest_fixture_from_cup_tree
 from app.services.scraper.lineup_service import ingest_lineups;
 from app.services.scraper.statistics_service import ingest_match_statistics
+from app.services.scraper.match_event_service import ingest_match_events
 from app.utils import get_or_create
 
 
@@ -91,6 +92,13 @@ async def _process_cup_tree_match(session, api, event_id, block, round_data, lea
             match_stats
         )
 
+    # Récupérer les événements du match
+    match_incidents = await match_obj.incidents()
+    if match_incidents:
+        await ingest_match_events(
+            session, match_incidents, fixture.id,
+            home_team.id, away_team.id
+        )
 
 async def _get_or_create_team_from_participant(session, api, participant):
     

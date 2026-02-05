@@ -15,7 +15,7 @@ from app.db.models import League as LeagueModel, Season, Fixture
 from app.services.scraper import (
     ingest_league, ingest_season, ingest_team, ingest_players_for_team,
     ingest_fixture, ingest_lineups, ingest_match_statistics,
-    ingest_cup_tree_matches
+    ingest_cup_tree_matches, ingest_standings, ingest_match_events
 )
 from app.utils import get_or_create
 
@@ -63,7 +63,15 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                     match_stats
                 )
             
-            print(f" Match {event['id']} traité avec succès")
+            # Ingérer les événements du match
+            match_incidents = await match_obj.incidents()
+            if match_incidents:
+                await ingest_match_events(
+                    session, match_incidents, fixture.id,
+                    home_team.id, away_team.id
+                )
+
+            # print(f" Match {event['id']} traité avec succès")
             
         except Exception as e:
             print(f" Erreur match {event['id']}: {str(e)}")
@@ -87,12 +95,12 @@ async def main():
         can_league = League(api, can_id)
         can_seasons = await can_league.get_seasons()
         latest_can_season_id = can_seasons[0].get('id') if can_seasons else None
-        print(f"✓ Dernière saison (ID: {latest_can_season_id})")
+        print(f"Dernière saison (ID: {latest_can_season_id})")
 
         # Récupérer tous les rounds
         can_rounds = await can_league.rounds(latest_can_season_id)
         rounds_list = [r['round'] for r in can_rounds['rounds']]
-        print(f"✓ {len(rounds_list)} rounds trouvés")
+        print(f" {len(rounds_list)} rounds trouvés")
 
         async with AsyncSessionLocal() as session:
             async with session.begin():
@@ -132,13 +140,25 @@ async def main():
                 else:
                     print("Impossible de récupérer league/season pour cup_tree")
 
+            # CLASSEMENTS
+            print("\n" + "="*50)
+            print("📥 INGESTION CLASSEMENTS")
+            print("="*50 + "\n")
+
+            standings_data = await can_league.standings(latest_can_season_id)
+            if standings_data:
+                await ingest_standings(session, standings_data, season_obj.id)
+                print("\n✓ Classements ingérés avec succès")
+            else:
+                print("✗ Aucune donnée de classement disponible")
+
             await session.commit()
             print("\n" + "="*50)
-            print("✅ INGESTION TERMINÉE AVEC SUCCÈS!")
+            print(" INGESTION TERMINÉE AVEC SUCCÈS!")
             print("="*50 + "\n")
 
     except Exception as e:
-        print(f"\n❌ ERREUR FATALE: {str(e)}")
+        print(f"\n ERREUR FATALE: {str(e)}")
         import traceback
         traceback.print_exc()
     finally:

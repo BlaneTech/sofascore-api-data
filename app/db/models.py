@@ -34,14 +34,21 @@ class MatchStatus(str, enum.Enum):
     ABANDONED = "abandoned"
 
 
+# class EventType(str, enum.Enum):
+#     GOAL = "goal"
+#     YELLOW_CARD = "yellowCard"
+#     RED_CARD = "redCard"
+#     SUBSTITUTION = "substitution"
+#     VAR = "var"
+#     PENALTY_MISSED = "penaltyMissed"
+
 class EventType(str, enum.Enum):
     GOAL = "goal"
-    YELLOW_CARD = "yellowCard"
-    RED_CARD = "redCard"
+    YELLOW_CARD = "yellow_card"
+    RED_CARD = "red_card"
     SUBSTITUTION = "substitution"
+    PENALTY_MISSED = "penalty_missed"
     VAR = "var"
-    PENALTY_MISSED = "penaltyMissed"
-
 
 # ================= LEAGUES / SEASONS =================
 class League(Base):
@@ -239,20 +246,31 @@ class MatchEvent(Base):
     __tablename__ = "match_events"
 
     id = Column(Integer, primary_key=True)
+    sofascore_id = Column(Integer, unique=True, index=True)
     fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
     player_id = Column(Integer, ForeignKey("players.id"), nullable=True, index=True)
     assist_player_id = Column(Integer, ForeignKey("players.id"), nullable=True, index=True)
+    player_out_id = Column(Integer, ForeignKey("players.id"), nullable=True)
 
     type = Column(Enum(EventType), nullable=False)
     minute = Column(Integer, nullable=False)
     extra_minute = Column(Integer)
+    is_home = Column(Boolean, nullable=False)
+    home_score = Column(Integer)
+    away_score = Column(Integer)
+    incident_class = Column(String(50))
+    reason = Column(String(100))
     detail = Column(String(255))
     comments = Column(Text)
+    
+    created_at = Column(DateTime, server_default="now()")
+    updated_at = Column(DateTime, onupdate="now()")
 
     fixture = relationship("Fixture", back_populates="events")
     player = relationship("Player", foreign_keys=[player_id], back_populates="events")
     assist_player = relationship("Player", foreign_keys=[assist_player_id], back_populates="assists")
+    player_out = relationship("Player", foreign_keys=[player_out_id])
     team = relationship("Team")
 
 

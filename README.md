@@ -1,8 +1,8 @@
-# 🏆 GOGAinde-Data
+# GOGAinde-Data
 
 Plateforme de collecte et d'analyse de données pour la Coupe d'Afrique des Nations (CAN).
 
-## 📁 Structure du Projet
+## Structure du Projet
 
 ```
 GOGAinde-Data/
@@ -89,18 +89,18 @@ make db-init
 - **League** : Compétitions (CAN, qualifications, etc.)
 - **Season** : Saisons par compétition
 - **Team** : Équipes nationales
-- **Manager** : Entraîneurs ✨
-- **TeamManager** : Historique entraîneurs par équipe ✨
+- **Manager** : Entraîneurs 
+- **TeamManager** : Historique entraîneurs par équipe 
 - **Player** : Joueurs
 - **Fixture** : Matchs
 - **MatchEvent** : Événements de match (buts, cartons, etc.)
 - **Lineup** : Compositions d'équipe
-- **MatchStatistics** : Statistiques de match ✨ (avec contrainte unique)
+- **MatchStatistics** : Statistiques de match (avec contrainte unique)
 - **PlayerStatistics** : Statistiques joueur
 - **TeamStatistics** : Statistiques équipe
 - **Standing** : Classements
 
-## 🏃 Utilisation
+##  Utilisation
 
 ### Lancer le scraping AFCON
 
@@ -132,7 +132,7 @@ make test
 make notebook
 ```
 
-## 🐳 Docker
+##  Docker
 
 ### Lancer avec Docker Compose
 
@@ -152,7 +152,7 @@ make docker-logs
 make docker-down
 ```
 
-## 📝 Commandes Make Disponibles
+##  Commandes Make Disponibles
 
 ```bash
 make help              # Affiche l'aide
@@ -169,7 +169,6 @@ make docker-logs       # Affiche les logs Docker
 make notebook          # Lance Jupyter
 ```
 
-## 🔧 Architecture
 
 ### Services de Scraping
 
@@ -197,45 +196,7 @@ Les services de scraping sont organisés par responsabilité :
 4. Ingestion phases finales (cup tree)
 ```
 
-## 🎯 Fonctionnalités
-
-✅ Scraping complet de la CAN  
-✅ Gestion des équipes et joueurs  
-✅ Compositions de match  
-✅ Statistiques détaillées  
-✅ Phases de groupes et phases finales  
-✅ API REST (FastAPI)  
-✅ Base de données PostgreSQL  
-✅ Contraintes d'intégrité  
-✅ Architecture modulaire  
-✅ Tests automatisés  
-✅ Docker support  
-
-## 🔒 Contraintes d'Intégrité
-
-Les contraintes suivantes garantissent la qualité des données :
-
-- **MatchStatistics** : (fixture_id, team_id) unique → 2 enregistrements par match
-- **Lineup** : (fixture_id, team_id, player_id) unique → Pas de doublons
-- **Standing** : (season_id, team_id, group) unique
-- **TeamManager** : (team_id, manager_id, start_date) unique
-
-## 📈 Prochaines Étapes
-
-- [ ] Ajouter endpoints API pour consultation
-- [ ] Créer dashboards de visualisation
-- [ ] Ajouter scraping en temps réel
-- [ ] Implémenter caching
-- [ ] Ajouter authentification API
-- [ ] Créer analyses prédictives
-- [ ] Exporter vers différents formats
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une PR.
-
-
-## 👥 Auteurs
+## Auteurs
 
 ACCEL-TECH
 www.accel-tech.net

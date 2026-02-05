@@ -5,12 +5,12 @@ services/__pycache__/
 tests/__pycache__/
 utils/__pycache__/
 db/__pycache__/
-pipelines/__pycache__/
-notebooks/__pycache__
-pipelines/_backups/
-pipelines/new_models.py
-pipelines/ingestion.py
+pipeline/__pycache__/
 notebooks/
+pipeline/_backups/
+pipeline/new_models.py
+pipeline/ingestion.py
+notebook/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/

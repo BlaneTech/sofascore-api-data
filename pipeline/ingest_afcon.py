@@ -63,10 +63,10 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                     match_stats
                 )
             
-            print(f"✓ Match {event['id']} traité avec succès")
+            print(f" Match {event['id']} traité avec succès")
             
         except Exception as e:
-            print(f"✗ Erreur match {event['id']}: {str(e)}")
+            print(f" Erreur match {event['id']}: {str(e)}")
             continue
     
     return league_obj, season_obj

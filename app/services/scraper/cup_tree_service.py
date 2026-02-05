@@ -4,7 +4,8 @@ from sofascore_wrapper.match import Match
 from app.db.models import Team
 from app.services.scraper.team_service import ingest_team
 from app.services.scraper.fixture_service import ingest_fixture_from_cup_tree
-from app.services.scraper.lineup_service import ingest_lineups
+from app.services.scraper.lineup_service import ingest_lineups;
+from app.services.scraper.statistics_service import ingest_match_statistics
 from app.utils import get_or_create
 
 
@@ -15,7 +16,7 @@ async def ingest_cup_tree_matches(session, api, season_id, league, season):
         cup_tree_data = await can_league.cup_tree(season_id)
         
         if not cup_tree_data or 'cupTrees' not in cup_tree_data:
-            print("⚠ Pas de cup_tree disponible")
+            print(" Pas de cup_tree disponible")
             return
         
         cup_tree = cup_tree_data['cupTrees'][0]
@@ -42,7 +43,7 @@ async def ingest_cup_tree_matches(session, api, season_id, league, season):
                     print(f"  ✗ Erreur match {event_id}: {str(e)}")
                     continue
         
-        print(f"✅ Phases finales insérées")
+        print(f" Phases finales insérées")
         
     except Exception as e:
         print(f"✗ Erreur cup_tree: {str(e)}")
@@ -79,6 +80,16 @@ async def _process_cup_tree_match(session, api, event_id, block, round_data, lea
         await ingest_lineups(session, fixture.id, home_lineups, participants[0]['team']['id'])
     if away_lineups:
         await ingest_lineups(session, fixture.id, away_lineups, participants[1]['team']['id'])
+
+    # Récupérer les statistiques
+    match_stats = await match_obj.stats()
+    if match_stats:
+        await ingest_match_statistics(
+            session, fixture.id,
+            participants[0]['team']['id'],
+            participants[1]['team']['id'],
+            match_stats
+        )
 
 
 async def _get_or_create_team_from_participant(session, api, participant):

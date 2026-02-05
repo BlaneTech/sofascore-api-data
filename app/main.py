@@ -1,137 +1,103 @@
-import asyncio
-from sofascore_wrapper.api import SofascoreAPI
-from sofascore_wrapper.search import Search
-from sofascore_wrapper.league import League
-from sofascore_wrapper.match import Match
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
+import time
 
-from db.database import async_session_factory
-from db.models import League as LeagueModel, Season, Fixture
-from services import (
-    ingest_league, ingest_season, ingest_team, ingest_players_for_team,
-    ingest_fixture, ingest_lineups, ingest_match_statistics,
-    ingest_cup_tree_matches
-)
-from utils import get_or_create
-
-for event in match_data["events"]:
-    try:
-            # Ingérer league et season si besoin
-            if not league_obj:
-                league_obj = await ingest_league(session, event)
-                season_obj = await ingest_season(session, event, league_obj.id)
-            
-            # Ingérer les équipes
-            home_team = await ingest_team(session, api, event["homeTeam"])
-            away_team = await ingest_team(session, api, event["awayTeam"])
-            
-            # Ingérer les joueurs
-            await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
-            await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
-            
-            # Ingérer le fixture
-            fixture = await ingest_fixture(
-                session, event, league_obj.id, season_obj.id,
-                home_team.id, away_team.id
-            )
-            
-            # Ingérer les lineups
-            match_obj = Match(api, event["id"])
-            home_lineups = await match_obj.lineups_home()
-            away_lineups = await match_obj.lineups_away()
-            
-            if home_lineups:
-                await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
-            if away_lineups:
-                await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
-            
-            # Ingérer les statistiques
-            match_stats = await match_obj.stats()
-            if match_stats:
-                await ingest_match_statistics(
-                    session, fixture.id,
-                    event["homeTeam"]["id"],
-                    event["awayTeam"]["id"],
-                    match_stats
-                )
-            
-            print(f"✓ Match {event['id']} traité avec succès")
-            
-    except Exception as e:
-            print(f"✗ Erreur match {event['id']}: {str(e)}")
-            continue
-    
-    return league_obj, season_obj
+from app.core.config import settings
+from app.api import leagues, teams, fixtures, players, standings
 
 
-async def main():
+# Lifespan context manager
+@asynccontextmanager
+async def lifespan(app: FastAPI):
    
-    api = SofascoreAPI()
+    print(" Starting GOGAinde-Data API...")
+    yield
+    print("Shutting down GOGAinde-Data API...")
 
-    try:
-        # Rechercher la compétition AFCON
-        search = Search(api, search_string="Africa Cup of Nations")
-        competition = await search.search_all()
-        can_id = competition['results'][0]['entity']['id']
 
-        # Récupérer les saisons
-        can_league = League(api, can_id)
-        can_seasons = await can_league.get_seasons()
-        latest_can_season_id = can_seasons[0].get('id') if can_seasons else None
+# Créer l'application FastAPI
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    description="GOGAinde-Data API - API pour les données de football",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
+)
 
-        # Récupérer tous les rounds
-        can_rounds = await can_league.rounds(latest_can_season_id)
-        rounds_list = [r['round'] for r in can_rounds['rounds']]
 
-        async with async_session_factory() as session:
-            async with session.begin():
-                league_obj = None
-                season_obj = None
-                
-                # PHASE DE GROUPES
-                print("\n" + "="*50)
-                print("INGESTION PHASE DE GROUPES")
-                print("="*50 + "\n")
-                
-                for round_number in rounds_list:
-                    try:
-                        print(f"\n--- Round {round_number} ---")
-                        match_can = await can_league.league_fixtures_per_round(
-                            latest_can_season_id, round_number
-                        )
+# Configuration CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-                        league_obj, season_obj = await process_round_fixtures(
-                            session, api, league_obj, season_obj, match_can
-                        )
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
-                    except Exception as e:
-                        print(f"✗ Erreur round {round_number}: {str(e)}")
-                        continue
+# Gestionnaire d'erreurs global
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "errors": [str(exc)],
+            "data": None
+        }
+    )
 
-                # PHASES FINALES (CUP TREE)
-                print("\n" + "="*50)
-                print("INGESTION PHASES FINALES")
-                print("="*50 + "\n")
-                
-                if league_obj and season_obj:
-                    await ingest_cup_tree_matches(
-                        session, api, latest_can_season_id, 
-                        league_obj, season_obj
-                    )
-                else:
-                    print("⚠ Impossible de récupérer league/season pour cup_tree")
 
-            await session.commit()
-            print("\n" + "="*50)
-            print("✅ INGESTION TERMINÉE AVEC SUCCÈS!")
-            print("="*50 + "\n")
+# Routes de base
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "message": "Welcome to GOGAinde-Data API",
+        "version": settings.APP_VERSION,
+        "documentation": "/docs",
+        "endpoints": {
+            "leagues": "/leagues",
+            "teams": "/teams",
+            "fixtures": "/fixtures",
+            "players": "/players",
+            "standings": "/standings"
+        }
+    }
 
-    except Exception as e:
-        print(f"\n❌ ERREUR FATALE: {str(e)}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        await api.close()
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+   
+    return {
+        "status": "healthy",
+        "version": settings.APP_VERSION,
+        "environment": "development" if settings.DEBUG else "production"
+    }
+
+
+# Inclure les routers
+app.include_router(leagues.router)
+app.include_router(teams.router)
+app.include_router(fixtures.router)
+app.include_router(players.router)
+app.include_router(standings.router)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import uvicorn
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.DEBUG
+    )

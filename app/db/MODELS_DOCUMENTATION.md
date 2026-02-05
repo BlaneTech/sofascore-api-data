@@ -1,6 +1,6 @@
-# 📊 Documentation des Modèles de Données.
+# Documentation des Modèles de Données.
 
-## 🗂️ Modèles
+##  Modèles
 
 ### 1. League (Compétition)
 
@@ -76,7 +76,7 @@ class Team:
 
 ---
 
-### 4. Manager (Entraîneur) ✨ NOUVEAU
+### 4. Manager (Entraîneur)
 
 Représente un entraîneur
 
@@ -98,7 +98,7 @@ class Manager:
 
 ---
 
-### 5. TeamManager (Historique Entraîneur) ✨ NOUVEAU
+### 5. TeamManager (Historique Entraîneur)
 
 Représente l'historique des entraîneurs par équipe
 
@@ -243,7 +243,7 @@ class Lineup:
 ```
 
 **Contraintes:**
-- UNIQUE (fixture_id, team_id, player_id) ✨
+- UNIQUE (fixture_id, team_id, player_id)
 
 **Relations:**
 - `fixture` → Many-to-One avec Fixture
@@ -252,7 +252,7 @@ class Lineup:
 
 ---
 
-### 10. MatchStatistics (Statistiques de Match) ✨
+### 10. MatchStatistics (Statistiques de Match)
 
 Représente les statistiques d'une équipe pour un match
 
@@ -368,7 +368,7 @@ class Standing:
 ```
 
 **Contraintes:**
-- UNIQUE (season_id, team_id, group) ✨
+- UNIQUE (season_id, team_id, group)
 
 **Relations:**
 - `season` → Many-to-One avec Season
@@ -376,7 +376,7 @@ class Standing:
 
 ---
 
-## 🔐 Index
+##  Index
 
 Les index suivants sont créés pour optimiser les performances :
 
@@ -391,7 +391,7 @@ Les index suivants sont créés pour optimiser les performances :
 
 ---
 
-## 🎯 Règles d'Intégrité
+##  Règles d'Intégrité
 
 1. **Un match a exactement 2 équipes** (home et away)
 2. **Un match a exactement 2 enregistrements de statistiques** (contrainte unique)
@@ -400,7 +400,7 @@ Les index suivants sont créés pour optimiser les performances :
 
 ---
 
-## 📋 Enums
+##  Enums
 
 ### TournamentType
 ```python

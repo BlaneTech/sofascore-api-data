@@ -1,7 +1,5 @@
 # GOGAinde-Data
 
-Plateforme de collecte et d'analyse de données pour la Coupe d'Afrique des Nations (CAN).
-
 ## Structure du Projet
 
 ```

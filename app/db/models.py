@@ -353,35 +353,95 @@ class MatchStatistics(Base):
     fixture = relationship("Fixture", back_populates="match_statistics")
     team = relationship("Team", back_populates="match_statistics")
 
-
 class PlayerStatistics(Base):
     __tablename__ = "player_statistics"
 
     id = Column(Integer, primary_key=True)
     player_id = Column(Integer, ForeignKey("players.id"), nullable=False, index=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False, index=True)
+    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False, index=True)
+    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False, index=True)
 
+    # Stats de base
     rating = Column(Float)
+    appearances = Column(Integer)
     minutes_played = Column(Integer)
+    
+    # Buts et passes
     goals = Column(Integer)
     assists = Column(Integer)
-    shots = Column(Integer)
+    big_chances_created = Column(Integer)
+    big_chances_missed = Column(Integer)
+    
+    # Tirs
+    total_shots = Column(Integer)
     shots_on_target = Column(Integer)
-    passes = Column(Integer)
-    pass_accuracy = Column(Float)
+    shots_off_target = Column(Integer)
+    shots_from_inside_box = Column(Integer)
+    shots_from_outside_box = Column(Integer)
+    goal_conversion_percentage = Column(Float)
+    
+    # Passes
+    total_passes = Column(Integer)
+    accurate_passes = Column(Integer)
+    accurate_passes_percentage = Column(Float)
+    key_passes = Column(Integer)
+    accurate_crosses = Column(Integer)
+    accurate_crosses_percentage = Column(Float)
+    accurate_long_balls = Column(Integer)
+    accurate_long_balls_percentage = Column(Float)
+    
+    # Duels et défense
+    total_duels_won = Column(Integer)
+    total_duels_won_percentage = Column(Float)
+    ground_duels_won = Column(Integer)
+    ground_duels_won_percentage = Column(Float)
+    aerial_duels_won = Column(Integer)
+    aerial_duels_won_percentage = Column(Float)
     tackles = Column(Integer)
+    tackles_won = Column(Integer)
+    tackles_won_percentage = Column(Float)
     interceptions = Column(Integer)
-    fouls = Column(Integer)
+    clearances = Column(Integer)
+    
+    # Dribbles
+    successful_dribbles = Column(Integer)
+    successful_dribbles_percentage = Column(Float)
+    dribbled_past = Column(Integer)
+    
+    # Discipline
     yellow_cards = Column(Integer)
     red_cards = Column(Integer)
-    dribbles = Column(Integer)
-    dribble_attempts = Column(Integer)
-
+    fouls = Column(Integer)
+    was_fouled = Column(Integer)
+    
+    # Gardien
+    saves = Column(Integer)
+    clean_sheet = Column(Integer)
+    goals_conceded = Column(Integer)
+    penalty_save = Column(Integer)
+    
+    # Penalties
+    penalty_goals = Column(Integer)
+    penalties_taken = Column(Integer)
+    penalty_conversion = Column(Float)
+    
+    # Divers
+    touches = Column(Integer)
+    possession_lost = Column(Integer)
+    offsides = Column(Integer)
+    hit_woodwork = Column(Integer)
+    own_goals = Column(Integer)
+    
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
+    __table_args__ = (
+        UniqueConstraint('player_id', 'season_id', 'league_id', name='uq_player_stats_season_league'),
+    )
+
     player = relationship("Player", back_populates="statistics")
-    fixture = relationship("Fixture")
+    season = relationship("Season")
+    league = relationship("League")
 
 
 class TeamStatistics(Base):
@@ -389,22 +449,102 @@ class TeamStatistics(Base):
 
     id = Column(Integer, primary_key=True)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
+    season_id = Column(Integer, ForeignKey("seasons.id"), nullable=False, index=True)
+    league_id = Column(Integer, ForeignKey("leagues.id"), nullable=False, index=True)
 
-    total_matches = Column(Integer, default=0)
-    wins = Column(Integer, default=0)
-    draws = Column(Integer, default=0)
-    losses = Column(Integer, default=0)
-    goals_for = Column(Integer, default=0)
-    goals_against = Column(Integer, default=0)
-    goal_difference = Column(Integer, default=0)
-    points = Column(Integer, default=0)
-
+    # Matchs
+    matches = Column(Integer)
+    wins = Column(Integer)
+    draws = Column(Integer)
+    losses = Column(Integer)
+    
+    # Buts
+    goals_scored = Column(Integer)
+    goals_conceded = Column(Integer)
+    own_goals = Column(Integer)
+    assists = Column(Integer)
+    
+    # Tirs
+    shots = Column(Integer)
+    shots_on_target = Column(Integer)
+    shots_off_target = Column(Integer)
+    shots_from_inside_box = Column(Integer)
+    shots_from_outside_box = Column(Integer)
+    blocked_scoring_attempt = Column(Integer)
+    big_chances = Column(Integer)
+    big_chances_created = Column(Integer)
+    big_chances_missed = Column(Integer)
+    hit_woodwork = Column(Integer)
+    
+    # Passes
+    total_passes = Column(Integer)
+    accurate_passes = Column(Integer)
+    accurate_passes_percentage = Column(Float)
+    total_long_balls = Column(Integer)
+    accurate_long_balls = Column(Integer)
+    accurate_long_balls_percentage = Column(Float)
+    total_crosses = Column(Integer)
+    accurate_crosses = Column(Integer)
+    accurate_crosses_percentage = Column(Float)
+    
+    # Possession
+    average_ball_possession = Column(Float)
+    
+    # Défense
+    tackles = Column(Integer)
+    interceptions = Column(Integer)
+    clearances = Column(Integer)
+    saves = Column(Integer)
+    clean_sheets = Column(Integer)
+    
+    # Duels
+    total_duels = Column(Integer)
+    duels_won = Column(Integer)
+    duels_won_percentage = Column(Float)
+    ground_duels_won = Column(Integer)
+    ground_duels_won_percentage = Column(Float)
+    aerial_duels_won = Column(Integer)
+    aerial_duels_won_percentage = Column(Float)
+    
+    # Discipline
+    yellow_cards = Column(Integer)
+    red_cards = Column(Integer)
+    fouls = Column(Integer)
+    
+    # Corners et coups de pied arrêtés
+    corners = Column(Integer)
+    free_kicks = Column(Integer)
+    
+    # Dribbles
+    successful_dribbles = Column(Integer)
+    dribble_attempts = Column(Integer)
+    
+    # Penalties
+    penalty_goals = Column(Integer)
+    penalties_taken = Column(Integer)
+    penalties_commited = Column(Integer)
+    
+    # Autres
+    offsides = Column(Integer)
+    possession_lost = Column(Integer)
+    errors_leading_to_goal = Column(Integer)
+    ball_recovery = Column(Integer)
+    
+    # Rating moyen
+    avg_rating = Column(Float)
+    
     created_at = Column(DateTime, server_default="now()")
     updated_at = Column(DateTime, onupdate="now()")
 
+    __table_args__ = (
+        UniqueConstraint('team_id', 'season_id', 'league_id', name='uq_team_stats_season_league'),
+    )
+
     team = relationship("Team", back_populates="team_statistics")
+    season = relationship("Season")
+    league = relationship("League")
 
-
+# ================= STANDINGS =================
 class Standing(Base):
     __tablename__ = "standings"
 
@@ -445,7 +585,7 @@ async def create_schema():
         await conn.run_sync(Base.metadata.create_all)
     
     await engine.dispose()
-    print("✅ Database schema created successfully!")
+    print("Database schema created successfully!")
 
 
 if __name__ == "__main__":

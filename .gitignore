@@ -10,6 +10,7 @@ notebooks/
 pipeline/_backups/
 pipeline/new_models.py
 pipeline/ingestion.py
+app/services/scraper/COPY_OLD_statistics_service.py
 notebook/
 *.py[cod]
 .pytest_cache/

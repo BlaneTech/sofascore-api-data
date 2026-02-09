@@ -5,7 +5,9 @@ from contextlib import asynccontextmanager
 import time
 
 from app.core.config import settings
-from app.api import leagues, teams, fixtures, players, standings
+from app.api import (leagues, teams, fixtures, players, standings,
+                     events, statistics, lineups, managers, seasons
+)
 
 
 # Lifespan context manager
@@ -87,10 +89,15 @@ async def health_check():
 
 # Inclure les routers
 app.include_router(leagues.router)
+app.include_router(seasons.router)
 app.include_router(teams.router)
-app.include_router(fixtures.router)
 app.include_router(players.router)
+app.include_router(managers.router)
+app.include_router(fixtures.router)
+app.include_router(lineups.router)
 app.include_router(standings.router)
+app.include_router(events.router)
+app.include_router(statistics.router)
 
 
 if __name__ == "__main__":

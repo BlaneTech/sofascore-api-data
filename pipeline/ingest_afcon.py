@@ -17,6 +17,11 @@ from app.services.scraper import (
     ingest_fixture, ingest_lineups, ingest_match_statistics,
     ingest_cup_tree_matches, ingest_standings, ingest_match_events
 )
+from app.services.scraper.manager_service import ingest_managers_for_fixture
+from app.services.scraper.statistics_service import (
+    ingest_all_players_statistics,
+    ingest_all_teams_statistics
+)
 from app.utils import get_or_create
 
 
@@ -37,6 +42,16 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
             await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
             await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
             
+            # Ingérer les managers
+            try:
+                await ingest_managers_for_fixture(
+                    session, api, event["id"],
+                    event["homeTeam"]["id"], 
+                    event["awayTeam"]["id"]
+                )
+            except Exception as e:
+                print(f"  Erreur managers: {e}")
+
             # Ingérer le fixture
             fixture = await ingest_fixture(
                 session, event, league_obj.id, season_obj.id,
@@ -109,7 +124,7 @@ async def main():
                 
                 # PHASE DE GROUPES
                 print("\n" + "="*50)
-                print("📥 INGESTION PHASE DE GROUPES")
+                print(" INGESTION PHASE DE GROUPES")
                 print("="*50 + "\n")
                 
                 for round_number in rounds_list:
@@ -129,7 +144,7 @@ async def main():
 
                 # PHASES FINALES (CUP TREE)
                 print("\n" + "="*50)
-                print("📥 INGESTION PHASES FINALES")
+                print(" INGESTION PHASES FINALES")
                 print("="*50 + "\n")
                 
                 if league_obj and season_obj:
@@ -142,15 +157,32 @@ async def main():
 
             # CLASSEMENTS
             print("\n" + "="*50)
-            print("📥 INGESTION CLASSEMENTS")
+            print(" INGESTION CLASSEMENTS")
             print("="*50 + "\n")
 
             standings_data = await can_league.standings(latest_can_season_id)
             if standings_data:
                 await ingest_standings(session, standings_data, season_obj.id)
-                print("\n✓ Classements ingérés avec succès")
+                print("\n Classements ingérés avec succès")
             else:
-                print("✗ Aucune donnée de classement disponible")
+                print(" Aucune donnée de classement disponible")
+
+            # NOUVEAU
+            print("\n" + "="*50)
+            print("STATISTIQUES")
+            print("="*50 + "\n")
+            
+            await ingest_all_teams_statistics(
+                session, api,
+                can_id, latest_can_season_id,
+                league_obj.id, season_obj.id
+            )
+            
+            await ingest_all_players_statistics(
+                session, api,
+                can_id, latest_can_season_id,
+                league_obj.id, season_obj.id
+            )
 
             await session.commit()
             print("\n" + "="*50)

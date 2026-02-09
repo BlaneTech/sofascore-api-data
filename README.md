@@ -1,43 +1,58 @@
 # GOGAinde-Data
 
-Plateforme de collecte et d'analyse de données pour la Coupe d'Afrique des Nations (CAN).
-
-## Structure du Projet
-
-```
-GOGAinde-Data/
-├── .venv/                  # Environnement virtuel Python
-├── app/                    # Code principal de l'application
-│   ├── api/                # Endpoints et routes API
-│   ├── core/               # Configuration et constantes
-│   │   └── config.py       # Configuration centralisée
-│   ├── db/                 # Gestion de la base de données
-│   │   ├── database.py     # Configuration SQLAlchemy
-│   │   └── models.py       # Modèles de données
-│   ├── schemas/            # Schémas Pydantic / validation
-│   ├── services/           # Logique métier
-│   │   └── scraper/        # Services de scraping Sofascore
-│   │       ├── league_service.py
-│   │       ├── team_service.py
-│   │       ├── fixture_service.py
-│   │       ├── lineup_service.py
-│   │       ├── statistics_service.py
-│   │       └── cup_tree_service.py
-│   ├── utils/              # Fonctions utilitaires
-│   │   └── db_helpers.py
-│   └── main.py             # Point d'entrée de l'application
-├── docker/                 # Fichiers liés à Docker
-├── notebooks/              # Jupyter notebooks / analyses
-├── pipeline/               # Scripts de pipeline
-│   └── ingest_afcon.py     # Script d'ingestion AFCON
-├── tests/                  # Tests unitaires et d'intégration
-├── .env                    # Variables d'environnement
-├── .env.example            # Exemple de variables d'environnement
-├── .gitignore              # Fichiers ignorés par Git
-├── docker-compose.yml      # Configuration Docker Compose
-├── Makefile                # Commandes automatisées
-├── README.md               # Documentation du projet
-└── requirements.txt        # Dépendances Python
+## Structure du Projet 
+ 
+``` 
+gogainde-data/ 
+├── API_RECAP.md                        # Récapitulatif des endpoints et API disponibles
+├── Makefile                            # Commandes automatisées pour build/test/deploiement
+├── README.md                           # Documentation principale du projet
+├── __init__.py                         # Indique que le dossier est un package Python
+├── app/                                # Code principal de l'application
+│   ├── api/                            # Endpoints et routes API (FastAPI)
+│   │   ├── events.py                   # Endpoints pour les événements de match
+│   │   ├── fixtures.py                 # Endpoints pour les matchs programmés
+│   │   ├── leagues.py                  # Endpoints pour les ligues
+│   │   ├── lineups.py                  # Endpoints pour les compositions d’équipes
+│   │   ├── managers.py                 # Endpoints pour les entraîneurs
+│   │   ├── players.py                  # Endpoints pour les joueurs
+│   │   ├── seasons.py                  # Endpoints pour les saisons
+│   │   ├── standings.py                # Endpoints pour les classements
+│   │   ├── statistics.py               # Endpoints pour les statistiques
+│   │   └── teams.py                    # Endpoints pour les équipes
+│   ├── core/                           # Configuration et constantes
+│   │   └── config.py                   # Paramètres centralisés (env, DB, etc.)
+│   ├── db/                             # Gestion de la base de données
+│   │   ├── MODELS_DOCUMENTATION.md     # Documentation des modèles SQLAlchemy
+│   │   ├── database.py                 # Connexion et configuration SQLAlchemy
+│   │   ├── init_db.py                  # Initialisation et création des tables
+│   │   ├── models.py                   # Définition des modèles ORM
+│   │   └── session.py                  # Gestion des sessions DB
+│   ├── main.py                         # Point d’entrée de l’application (FastAPI)
+│   ├── schemas/                        # Schémas Pydantic pour validation
+│   │   └── base.py                     # Schémas de base communs
+│   ├── services/                       # Logique métier
+│   │   └── scraper/                    # Services de scraping (Sofascore, etc.)
+│   │       ├── cup_tree_service.py     # Scraping arbre de coupe
+│   │       ├── fixture_service.py      # Scraping des matchs
+│   │       ├── league_service.py       # Scraping des ligues
+│   │       ├── lineup_service.py       # Scraping des compositions
+│   │       ├── manager_service.py      # Scraping des entraîneurs
+│   │       ├── match_event_service.py  # Scraping des événements de match
+│   │       ├── standing_service.py     # Scraping des classements
+│   │       ├── statistics_service.py   # Scraping des statistiques
+│   │       └── team_service.py         # Scraping des équipes
+│   └── utils/                          # Fonctions utilitaires
+│       └── db_helpers.py               # Helpers pour interactions DB
+├── docker/                             # Fichiers liés à Docker
+│   ├── Dockerfile                      # Image Docker de l’application
+│   └── nginx.conf                      # Configuration Nginx
+├── docker-compose.yml                  # Orchestration multi-services Docker
+├── pipeline/                           # Scripts de pipeline de données
+│   └── ingest_afcon.py                 # Script d’ingestion des données
+├── requirements.txt                    # Dépendances Python
+└── tests/                              # Tests unitaires et d’intégration
+    └── test_api.py                     # Tests des endpoints API
 ```
 
 ## Installation

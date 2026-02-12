@@ -1,4 +1,4 @@
-# GOGAinde-Data
+# gogainde-data
 
 ## Structure du Projet 
  

@@ -103,48 +103,107 @@ async def get_player_statistics(
     db: AsyncSession = Depends(get_db)
 ):
     
-    from app.db.models import PlayerStatistics, Fixture
+    from app.db.models import PlayerStatistics, Season
     
     # Vérifier que le joueur existe
     player_query = select(Player).where(Player.id == player_id)
     player_result = await db.execute(player_query)
     player = player_result.scalar_one_or_none()
     
+    season_query = select(Season).where(Season.id == season_id)
+    season_result = await db.execute(season_query)
+    season = season_result.scalar_one_or_none()
+
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
     
     query = select(PlayerStatistics).where(PlayerStatistics.player_id == player_id)
     
     if season_id:
-        query = query.join(Fixture).where(Fixture.season_id == season_id)
+        query = query.join(Season).where(Season.id == season_id)
     
     result = await db.execute(query)
-    statistics = result.scalars().all()
+    statistics = result.scalar_one_or_none()
     
-    # Agréger les statistiques
     if statistics:
-        total_stats = {
-            "matches_played": len(statistics),
-            "goals": sum(s.goals or 0 for s in statistics),
-            "assists": sum(s.assists or 0 for s in statistics),
-            "shots": sum(s.shots or 0 for s in statistics),
-            "shots_on_target": sum(s.shots_on_target or 0 for s in statistics),
-            "passes": sum(s.passes or 0 for s in statistics),
-            "tackles": sum(s.tackles or 0 for s in statistics),
-            "interceptions": sum(s.interceptions or 0 for s in statistics),
-            "fouls": sum(s.fouls or 0 for s in statistics),
-            "yellow_cards": sum(s.yellow_cards or 0 for s in statistics),
-            "red_cards": sum(s.red_cards or 0 for s in statistics),
-            "minutes_played": sum(s.minutes_played or 0 for s in statistics),
-            "average_rating": sum(s.rating or 0 for s in statistics if s.rating) / len([s for s in statistics if s.rating]) if any(s.rating for s in statistics) else None
+        stats_data = {
+            "results": {
+                "appearances": statistics.appearances,
+                "minutes_played": statistics.minutes_played,
+                "rating": statistics.rating
+            },
+            "attack": {
+                "goals": statistics.goals,
+                "assists": statistics.assists,
+                "big_chances_created": statistics.big_chances_created,
+                "big_chances_missed": statistics.big_chances_missed,
+                "total_shots": statistics.total_shots,
+                "shots_on_target": statistics.shots_on_target,
+                "shots_off_target": statistics.shots_off_target,
+                "shots_inside_box": statistics.shots_from_inside_box,
+                "shots_outside_box": statistics.shots_from_outside_box,
+                "goal_conversion_percentage": statistics.goal_conversion_percentage,
+                "hit_woodwork": statistics.hit_woodwork,
+                "own_goals": statistics.own_goals
+            },
+            "passing": {
+                "total_passes": statistics.total_passes,
+                "accurate_passes": statistics.accurate_passes,
+                "accurate_passes_percentage": statistics.accurate_passes_percentage,
+                "key_passes": statistics.key_passes,
+                "accurate_crosses": statistics.accurate_crosses,
+                "accurate_crosses_percentage": statistics.accurate_crosses_percentage,
+                "accurate_long_balls": statistics.accurate_long_balls,
+                "accurate_long_balls_percentage": statistics.accurate_long_balls_percentage
+            },
+            "defense": {
+                "tackles": statistics.tackles,
+                "tackles_won": statistics.tackles_won,
+                "tackles_won_percentage": statistics.tackles_won_percentage,
+                "interceptions": statistics.interceptions,
+                "clearances": statistics.clearances,
+                "successful_dribbles": statistics.successful_dribbles,
+                "successful_dribbles_percentage": statistics.successful_dribbles_percentage,
+                "dribbled_past": statistics.dribbled_past
+            },
+            "duels": {
+                "total_duels_won": statistics.total_duels_won,
+                "total_duels_won_percentage": statistics.total_duels_won_percentage,
+                "ground_duels_won": statistics.ground_duels_won,
+                "ground_duels_won_percentage": statistics.ground_duels_won_percentage,
+                "aerial_duels_won": statistics.aerial_duels_won,
+                "aerial_duels_won_percentage": statistics.aerial_duels_won_percentage
+            },
+            "discipline": {
+                "yellow_cards": statistics.yellow_cards,
+                "red_cards": statistics.red_cards,
+                "fouls": statistics.fouls,
+                "was_fouled": statistics.was_fouled,
+                "offsides": statistics.offsides
+            },
+            "goalkeeping": {
+                "saves": statistics.saves,
+                "clean_sheet": statistics.clean_sheet,
+                "goals_conceded": statistics.goals_conceded,
+                "penalty_save": statistics.penalty_save
+            },
+            "set_pieces": {
+                "penalty_goals": statistics.penalty_goals,
+                "penalties_taken": statistics.penalties_taken,
+                "penalty_conversion": statistics.penalty_conversion,
+                "touches": statistics.touches,
+                "possession_lost": statistics.possession_lost
+            }
         }
+
     else:
-        total_stats = None
+        stats_data = None
     
     return APIResponse(
         success=True,
         data={
+            "season": PlayerBase.model_validate(season).model_dump(),
             "player": PlayerBase.model_validate(player).model_dump(),
-            "statistics": total_stats
+            "statistics": stats_data
         }
     )

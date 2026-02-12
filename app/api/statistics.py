@@ -11,7 +11,7 @@ from app.db.models import (
     MatchStatistics, PlayerStatistics, TeamStatistics,
     Fixture, Player, Team, Season
 )
-from app.schemas import APIResponse
+from app.schemas import APIResponse 
 
 router = APIRouter(prefix="/statistics", tags=["Statistics"])
 

@@ -2,7 +2,6 @@
 from app.db.models import League, Season, TournamentType
 from app.utils import get_or_create
 
-
 async def ingest_league(session, event_data):
    
     league_defaults = {

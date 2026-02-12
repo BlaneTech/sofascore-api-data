@@ -202,7 +202,7 @@ async def get_season_statistics(
             Fixture, MatchEvent.fixture_id == Fixture.id
         ).where(
             Fixture.season_id == season_id,
-            MatchEvent.type == 'yellowCard'
+            MatchEvent.type == 'YELLOW_CARD'
         )
     )).scalar()
     
@@ -211,7 +211,7 @@ async def get_season_statistics(
             Fixture, MatchEvent.fixture_id == Fixture.id
         ).where(
             Fixture.season_id == season_id,
-            MatchEvent.type == 'redCard'
+            MatchEvent.type == 'RED_CARD'
         )
     )).scalar()
     

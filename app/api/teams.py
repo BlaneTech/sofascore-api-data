@@ -4,9 +4,8 @@ from sqlalchemy import select, func, or_
 from typing import Optional
 
 from app.db.database import get_db
-from app.db.models import Team, Player
-from app.schemas import TeamBase, TeamDetailed, PlayerBase, APIResponse, PaginationMeta
-from app.db.models import TeamStatistics
+from app.db.models import Team, Player,TeamStatistics, Season
+from app.schemas import TeamBase, TeamDetailed, PlayerBase, APIResponse, PaginationMeta, SeasonBase
 
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
@@ -123,9 +122,10 @@ async def get_team_players(
     )
 
 
-@router.get("/{team_id}/statistics", response_model=APIResponse)
+@router.get("/{team_id}/season/{season_id}/statistics", response_model=APIResponse)
 async def get_team_statistics(
     team_id: int,
+    season_id: int,
     db: AsyncSession = Depends(get_db)
 ):
     
@@ -134,30 +134,99 @@ async def get_team_statistics(
     team_result = await db.execute(team_query)
     team = team_result.scalar_one_or_none()
     
+    season_query = select(Season).where(Season.id == season_id)
+    season_result = await db.execute(season_query)
+    season = season_result.scalar_one_or_none()
+
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     
     # Récupérer les statistiques
     stats_query = select(TeamStatistics).where(TeamStatistics.team_id == team_id)
+
+    if season_id:
+        stats_query = stats_query.join(Season).where(Season.id == season_id)
+
     stats_result = await db.execute(stats_query)
     stats = stats_result.scalar_one_or_none()
     
     stats_data = None
     if stats:
         stats_data = {
-            "total_matches": stats.total_matches,
-            "wins": stats.wins,
-            "draws": stats.draws,
-            "losses": stats.losses,
-            "goals_for": stats.goals_for,
-            "goals_against": stats.goals_against,
-            "goal_difference": stats.goal_difference,
-            "points": stats.points
+            "results": {
+                "matches": stats.matches,
+                "wins": stats.wins,
+                "draws": stats.draws,
+                "losses": stats.losses,
+                "points": getattr(stats, "points", None)
+            },
+            "attack": {
+                "goals_scored": stats.goals_scored,
+                "goals_conceded": stats.goals_conceded,
+                "goal_difference": stats.goals_scored - stats.goals_conceded,
+                "assists": stats.assists,
+                "shots": stats.shots,
+                "shots_on_target": stats.shots_on_target,
+                "shots_off_target": stats.shots_off_target,
+                "shots_inside_box": stats.shots_from_inside_box,
+                "shots_outside_box": stats.shots_from_outside_box,
+                "big_chances": stats.big_chances,
+                "big_chances_created": stats.big_chances_created,
+                "big_chances_missed": stats.big_chances_missed,
+                "hit_woodwork": stats.hit_woodwork,
+                "successful_dribbles": stats.successful_dribbles,
+                "dribble_attempts": stats.dribble_attempts
+            },
+            "passing": {
+                "total_passes": stats.total_passes,
+                "accurate_passes": stats.accurate_passes,
+                "accuracy_percentage": stats.accurate_passes_percentage,
+                "total_long_balls": stats.total_long_balls,
+                "accurate_long_balls": stats.accurate_long_balls,
+                "long_ball_accuracy": stats.accurate_long_balls_percentage,
+                "total_crosses": stats.total_crosses,
+                "accurate_crosses": stats.accurate_crosses,
+                "cross_accuracy": stats.accurate_crosses_percentage,
+                "average_possession": stats.average_ball_possession
+            },
+            "defense": {
+                "tackles": stats.tackles,
+                "interceptions": stats.interceptions,
+                "clearances": stats.clearances,
+                "saves": stats.saves,
+                "clean_sheets": stats.clean_sheets,
+                "blocked_shots": stats.blocked_scoring_attempt,
+                "ball_recovery": stats.ball_recovery,
+                "errors_leading_to_goal": stats.errors_leading_to_goal
+            },
+            "duels": {
+                "total_duels": stats.total_duels,
+                "duels_won": stats.duels_won,
+                "duels_won_percentage": stats.duels_won_percentage,
+                "ground_duels_won": stats.ground_duels_won,
+                "ground_duels_won_percentage": stats.ground_duels_won_percentage,
+                "aerial_duels_won": stats.aerial_duels_won,
+                "aerial_duels_won_percentage": stats.aerial_duels_won_percentage
+            },
+            "discipline": {
+                "yellow_cards": stats.yellow_cards,
+                "red_cards": stats.red_cards,
+                "fouls": stats.fouls,
+                "offsides": stats.offsides,
+                "corners": stats.corners,
+                "free_kicks": stats.free_kicks,
+                "penalties_taken": stats.penalties_taken,
+                "penalty_goals": stats.penalty_goals,
+                "penalties_committed": stats.penalties_commited
+            }
         }
+
+
     
     return APIResponse(
         success=True,
         data={
+            "season": SeasonBase.model_validate(season).model_dump(),
             "team": TeamBase.model_validate(team).model_dump(),
             "statistics": stats_data
         }

@@ -9,7 +9,7 @@ async def ingest_lineups(session, fixture_id, lineup_data, team_sofascore_id):
     team_db_id, _ = await get_team_by_sofascore_id(session, Team, team_sofascore_id)
     
     if not team_db_id:
-        print(f"⚠ Équipe {team_sofascore_id} introuvable")
+        print(f"Équipe {team_sofascore_id} introuvable")
         return
     
     # Insérer les starters

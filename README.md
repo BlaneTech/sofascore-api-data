@@ -10,6 +10,7 @@ gogainde-data/
 ├── __init__.py                         # Indique que le dossier est un package Python
 ├── app/                                # Code principal de l'application
 │   ├── api/                            # Endpoints et routes API (FastAPI)
+│   │   ├──api_keys_routes              # Endpoints pour l'authentification
 │   │   ├── events.py                   # Endpoints pour les événements de match
 │   │   ├── fixtures.py                 # Endpoints pour les matchs programmés
 │   │   ├── leagues.py                  # Endpoints pour les ligues
@@ -28,6 +29,7 @@ gogainde-data/
 │   │   ├── init_db.py                  # Initialisation et création des tables
 │   │   ├── models.py                   # Définition des modèles ORM
 │   │   └── session.py                  # Gestion des sessions DB
+│   ├──auth.py                          # Gestion authentification API
 │   ├── main.py                         # Point d’entrée de l’application (FastAPI)
 │   ├── schemas/                        # Schémas Pydantic pour validation
 │   │   └── base.py                     # Schémas de base communs
@@ -100,7 +102,7 @@ make db-init
 ## Base de Données
 
 ### Modèles disponibles
-
+- **API_KEY** : Infos Authenfication API
 - **League** : Compétitions (CAN, qualifications, etc.)
 - **Season** : Saisons par compétition
 - **Team** : Équipes nationales
@@ -195,6 +197,9 @@ Les services de scraping sont organisés par responsabilité :
 - **lineup_service** : Gestion des compositions
 - **statistics_service** : Gestion des statistiques
 - **cup_tree_service** : Gestion des phases finales
+- **Manager_service** : Gestion des manager
+- **Match_even_service** : Gestion des evenements dans les matchs
+- **Standing_service** : Gestion des classements 
 
 ### Flux d'ingestion
 
@@ -206,6 +211,8 @@ Les services de scraping sont organisés par responsabilité :
    - Ingestion équipes
    - Ingestion joueurs
    - Ingestion matchs
+   - Ingestion des evenements
+   - Ingestion des manager
    - Ingestion lineups
    - Ingestion statistiques
 4. Ingestion phases finales (cup tree)

@@ -17,7 +17,18 @@ async def ingest_standings(session, standings_data, season_id):
             if not team:
                 print(f"Team {row['team']['name']} (ID: {row['team']['id']}) non trouvée")
                 continue
-            
+
+             # Vérifier si standing existe déjà
+            standing_query = select(Standing).where(
+                Standing.season_id == season_id,
+                Standing.team_id == team.id
+            )
+            standing_result = await session.execute(standing_query)
+            existing = standing_result.scalar_one_or_none()
+                
+            if existing:
+                continue
+
             standing_defaults = {
                 "sofascore_id": row["id"],
                 "season_id": season_id,

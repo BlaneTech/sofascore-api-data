@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
@@ -8,22 +8,21 @@ from app.core.config import settings
 from app.api import (leagues, teams, fixtures, players, standings,
                      events, statistics, lineups, managers, seasons
 )
+from app.api import api_keys_routes
+from app.auth import verify_api_key
 
-
-# Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
    
-    print(" Starting GOGAinde-Data API...")
+    print(" Starting gogainde-data API...")
     yield
-    print("Shutting down GOGAinde-Data API...")
+    print("Shutting down gogainde-data API...")
 
-
-# Créer l'application FastAPI
 app = FastAPI(
     title=settings.APP_NAME,
+    # dependencies=[Depends(verify_api_key)],
     version=settings.APP_VERSION,
-    description="GOGAinde-Data API - API pour les données de football",
+    description="GOGAINDE-DATA API - API pour les données de football",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -72,10 +71,14 @@ async def root():
             "teams": "/teams",
             "fixtures": "/fixtures",
             "players": "/players",
-            "standings": "/standings"
+            "standings": "/standings",
+            "season": "/season",
+            "manager": "/manager",
+            "events": "/events",
+            "lineups": "/lineups",
+            "statistics": "/statistics"
         }
     }
-
 
 @app.get("/health", tags=["Health"])
 async def health_check():
@@ -86,18 +89,18 @@ async def health_check():
         "environment": "development" if settings.DEBUG else "production"
     }
 
-
 # Inclure les routers
-app.include_router(leagues.router)
-app.include_router(seasons.router)
-app.include_router(teams.router)
-app.include_router(players.router)
-app.include_router(managers.router)
-app.include_router(fixtures.router)
-app.include_router(lineups.router)
-app.include_router(standings.router)
-app.include_router(events.router)
-app.include_router(statistics.router)
+app.include_router(api_keys_routes.router)
+app.include_router(leagues.router, dependencies=[Depends(verify_api_key)])
+app.include_router(seasons.router, dependencies=[Depends(verify_api_key)])
+app.include_router(teams.router, dependencies=[Depends(verify_api_key)])
+app.include_router(players.router, dependencies=[Depends(verify_api_key)])
+app.include_router(managers.router, dependencies=[Depends(verify_api_key)])
+app.include_router(fixtures.router, dependencies=[Depends(verify_api_key)])
+app.include_router(lineups.router, dependencies=[Depends(verify_api_key)])
+app.include_router(standings.router, dependencies=[Depends(verify_api_key)])
+app.include_router(events.router, dependencies=[Depends(verify_api_key)])
+app.include_router(statistics.router, dependencies=[Depends(verify_api_key)])
 
 
 if __name__ == "__main__":

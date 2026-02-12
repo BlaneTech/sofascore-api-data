@@ -7,6 +7,8 @@ from typing import Optional
 from app.db.database import get_db
 from app.db.models import Lineup, Fixture, Team, Player
 from app.schemas import APIResponse, PaginationMeta
+from collections import defaultdict
+
 
 router = APIRouter(prefix="/lineups", tags=["Lineups"])
 
@@ -44,37 +46,69 @@ async def get_lineups(
     offset = (page - 1) * per_page
     query = query.offset(offset).limit(per_page)
     
+    # result = await db.execute(query)
     result = await db.execute(query)
     lineups = result.scalars().all()
     
-    lineups_data = []
+
+    from collections import defaultdict
+
+    lineups_data = {
+        "fixture": None,
+        "teams": []
+    }
+
+    teams_dict = {}
+
     for lineup in lineups:
-        lineups_data.append({
-            "id": lineup.id,
-            "fixture": {
+        # Fixture défini une seule fois
+        if lineups_data["fixture"] is None and lineup.fixture:
+            lineups_data["fixture"] = {
                 "id": lineup.fixture.id,
                 "home_team": lineup.fixture.home_team.name if lineup.fixture.home_team else None,
                 "away_team": lineup.fixture.away_team.name if lineup.fixture.away_team else None,
-            } if lineup.fixture else None,
-            "team": {
-                "id": lineup.team.id,
-                "name": lineup.team.name
-            } if lineup.team else None,
-            "player": {
+                "round": getattr(lineup.fixture, "round", None),
+                "group": getattr(lineup.fixture, "group", None),
+                "stage": getattr(lineup.fixture, "stage", None),
+                "status": getattr(lineup.fixture, "status", None),
+                "start_time": getattr(lineup.fixture, "start_time", None),
+                "home_score": getattr(lineup.fixture, "home_score", None),
+                "away_score": getattr(lineup.fixture, "away_score", None)
+            }
+
+        # Équipe regroupée
+        if lineup.team:
+            team_id = lineup.team.id
+            if team_id not in teams_dict:
+                teams_dict[team_id] = {
+                    "id": lineup.team.id,
+                    "name": lineup.team.name,
+                    "formation": lineup.formation,
+                    "starters": [],
+                    "substitutes": []
+                }
+
+            # Joueur ajouté dans starters ou substitutes
+            player_data = {
                 "id": lineup.player.id,
                 "name": lineup.player.name,
                 "position": lineup.player.position,
-                "jersey_number": lineup.player.jersey_number
-            } if lineup.player else None,
-            "formation": lineup.formation,
-            "position": lineup.position,
-            "starter": lineup.starter,
-            "substitute": lineup.substitute,
-            "captain": lineup.captain,
-            "rating": lineup.rating,
-            "minutes_played": lineup.minutes_played
-        })
-    
+                "jersey_number": lineup.player.jersey_number,
+                "captain": lineup.captain,
+                "rating": lineup.rating,
+                "minutes_played": lineup.minutes_played
+            }
+
+            if lineup.starter:
+                teams_dict[team_id]["starters"].append(player_data)
+            elif lineup.substitute:
+                teams_dict[team_id]["substitutes"].append(player_data)
+
+    # Finalisation
+    lineups_data["teams"] = list(teams_dict.values())
+
+
+
     return APIResponse(
         success=True,
         data={"lineups": lineups_data},
@@ -103,11 +137,16 @@ async def get_player_lineup_history(
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
     
-    query = select(Lineup).options(
-        joinedload(Lineup.fixture).joinedload(Fixture.home_team),
-        joinedload(Lineup.fixture).joinedload(Fixture.away_team),
-        joinedload(Lineup.team)
-    ).where(Lineup.player_id == player_id)
+    query = (
+        select(Lineup)
+        .join(Lineup.fixture)
+        .options(
+            joinedload(Lineup.fixture).joinedload(Fixture.home_team),
+            joinedload(Lineup.fixture).joinedload(Fixture.away_team),
+            joinedload(Lineup.team)
+        )
+        .where(Lineup.player_id == player_id)
+    )
     
     if season_id:
         query = query.join(Fixture).where(Fixture.season_id == season_id)
@@ -118,7 +157,7 @@ async def get_player_lineup_history(
     query = query.order_by(Fixture.date.desc())
     
     result = await db.execute(query)
-    lineups = result.scalars().all()
+    lineups = result.scalars().unique().all()
     
     # Statistiques globales
     total_appearances = len(lineups)

@@ -22,11 +22,9 @@ async def ingest_cup_tree_matches(session, api, season_id, league, season):
         
         cup_tree = cup_tree_data['cupTrees'][0]
         
-        # Parcourir tous les rounds (1/8, 1/4, 1/2, finale)
         for round_data in cup_tree.get('rounds', []):
             round_desc = round_data['description']
             
-            # Parcourir les blocks (matchs)
             for block in round_data.get('blocks', []):
                 event_ids = block.get('events', [])
                 
@@ -41,13 +39,13 @@ async def ingest_cup_tree_matches(session, api, season_id, league, season):
                         league, season
                     )
                 except Exception as e:
-                    print(f"  ✗ Erreur match {event_id}: {str(e)}")
+                    print(f" Erreur match {event_id}: {str(e)}")
                     continue
         
         print(f" Phases finales insérées")
         
     except Exception as e:
-        print(f"✗ Erreur cup_tree: {str(e)}")
+        print(f"Erreur cup_tree: {str(e)}")
         import traceback
         traceback.print_exc()
 

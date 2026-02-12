@@ -23,26 +23,134 @@ from app.services.scraper.statistics_service import (
     ingest_all_teams_statistics
 )
 from app.utils import get_or_create
+from sqlalchemy import select
+
+# async def process_round_fixtures(session, api, league_obj, season_obj, match_data):
+    
+#     for event in match_data["events"]:
+#         try:
+#              # VÉRIFIER SI LE MATCH EXISTE DÉJÀ
+#             fixture_query = select(Fixture).where(Fixture.sofascore_id == event["id"])
+#             fixture_result = await session.execute(fixture_query)
+#             existing_fixture = fixture_result.scalar_one_or_none()
+            
+#             if existing_fixture:
+#                 print(f"  Match {event['id']} déjà en base, skip")
+#                 continue
+
+#             if not league_obj:
+#                 league_obj = await ingest_league(session, event)
+#                 season_obj = await ingest_season(session, event, league_obj.id)
+            
+#             match_status = event.get("status", {}).get("type")
+            
+#             # Équipes (toujours)
+#             home_team = await ingest_team(session, api, event["homeTeam"])
+#             away_team = await ingest_team(session, api, event["awayTeam"])
+            
+#             # Joueurs (toujours)
+#             await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
+#             await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
+            
+#             # Managers (toujours)
+#             try:
+#                 await ingest_managers_for_fixture(
+#                     session, api, event["id"],
+#                     event["homeTeam"]["id"], 
+#                     event["awayTeam"]["id"]
+#                 )
+#             except Exception as e:
+#                 print(f"  Erreur managers: {e}")
+
+#             # Fixture (toujours)
+#             fixture = await ingest_fixture(
+#                 session, event, league_obj.id, season_obj.id,
+#                 home_team.id, away_team.id
+#             )
+            
+#             # Lineups (si match commencé ou terminé)
+#             if match_status in ["inprogress", "finished"]:
+#                 try:
+#                     match_obj = Match(api, event["id"])
+#                     home_lineups = await match_obj.lineups_home()
+#                     away_lineups = await match_obj.lineups_away()
+                    
+#                     if home_lineups:
+#                         await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
+#                     if away_lineups:
+#                         await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
+#                 except Exception as e:
+#                     print(f"  Pas de lineups: {e}")
+            
+#             # Stats et événements (seulement si terminé)
+#             if match_status == "finished":
+#                 try:
+#                     match_obj = Match(api, event["id"])
+                    
+#                     match_stats = await match_obj.stats()
+#                     if match_stats:
+#                         await ingest_match_statistics(
+#                             session, fixture.id,
+#                             event["homeTeam"]["id"],
+#                             event["awayTeam"]["id"],
+#                             match_stats
+#                         )
+                    
+#                     match_incidents = await match_obj.incidents()
+#                     if match_incidents:
+#                         await ingest_match_events(
+#                             session, match_incidents, fixture.id,
+#                             home_team.id, away_team.id
+#                         )
+#                 except Exception as e:
+#                     print(f"  Pas de stats: {e}")
+            
+#         except Exception as e:
+#             print(f" Erreur match {event['id']}: {str(e)}")
+#             continue
+    
+#     return league_obj, season_obj
 
 
 async def process_round_fixtures(session, api, league_obj, season_obj, match_data):
     
     for event in match_data["events"]:
         try:
-            # Ingérer league et season si besoin
+            # Vérifier si match existe déjà
+            fixture_query = select(Fixture).where(Fixture.sofascore_id == event["id"])
+            fixture_result = await session.execute(fixture_query)
+            existing_fixture = fixture_result.scalar_one_or_none()
+            
+            if existing_fixture:
+                print(f"  Match {event['id']} déjà ingéré, skip")
+                continue
+            
             if not league_obj:
                 league_obj = await ingest_league(session, event)
                 season_obj = await ingest_season(session, event, league_obj.id)
             
-            # Ingérer les équipes
-            home_team = await ingest_team(session, api, event["homeTeam"])
-            away_team = await ingest_team(session, api, event["awayTeam"])
+            match_status = event.get("status", {}).get("type", "notstarted")
             
-            # Ingérer les joueurs
-            await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
-            await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
+            # Équipes
+            try:
+                home_team = await ingest_team(session, api, event["homeTeam"])
+                away_team = await ingest_team(session, api, event["awayTeam"])
+            except Exception as e:
+                print(f"  Erreur équipes match {event['id']}: {e}")
+                continue
             
-            # Ingérer les managers
+            if not home_team or not away_team:
+                print(f"  Équipes manquantes match {event['id']}, skip")
+                continue
+            
+            # Joueurs
+            try:
+                await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
+                await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
+            except Exception as e:
+                print(f"  Erreur joueurs: {e}")
+            
+            # Managers
             try:
                 await ingest_managers_for_fixture(
                     session, api, event["id"],
@@ -52,44 +160,70 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
             except Exception as e:
                 print(f"  Erreur managers: {e}")
 
-            # Ingérer le fixture
-            fixture = await ingest_fixture(
-                session, event, league_obj.id, season_obj.id,
-                home_team.id, away_team.id
-            )
-            
-            # Ingérer les lineups
-            match_obj = Match(api, event["id"])
-            home_lineups = await match_obj.lineups_home()
-            away_lineups = await match_obj.lineups_away()
-            
-            if home_lineups:
-                await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
-            if away_lineups:
-                await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
-            
-            # Ingérer les statistiques
-            match_stats = await match_obj.stats()
-            if match_stats:
-                await ingest_match_statistics(
-                    session, fixture.id,
-                    event["homeTeam"]["id"],
-                    event["awayTeam"]["id"],
-                    match_stats
-                )
-            
-            # Ingérer les événements du match
-            match_incidents = await match_obj.incidents()
-            if match_incidents:
-                await ingest_match_events(
-                    session, match_incidents, fixture.id,
+            # Fixture
+            try:
+                fixture = await ingest_fixture(
+                    session, event, league_obj.id, season_obj.id,
                     home_team.id, away_team.id
                 )
-
-            # print(f" Match {event['id']} traité avec succès")
+            except Exception as e:
+                print(f"  Erreur fixture {event['id']}: {e}")
+                continue
+            
+            # Lineups (si match commencé)
+            if match_status in ["inprogress", "finished"]:
+                try:
+                    match_obj = Match(api, event["id"])
+                    
+                    try:
+                        home_lineups = await match_obj.lineups_home()
+                        if home_lineups:
+                            await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
+                    except Exception as e:
+                        print(f"  Lineups home indisponibles: {e}")
+                    
+                    try:
+                        away_lineups = await match_obj.lineups_away()
+                        if away_lineups:
+                            await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
+                    except Exception as e:
+                        print(f"  Lineups away indisponibles: {e}")
+                        
+                except Exception as e:
+                    print(f"  Erreur lineups match {event['id']}: {e}")
+            
+            # Stats et events (si terminé)
+            if match_status == "finished":
+                try:
+                    match_obj = Match(api, event["id"])
+                    
+                    try:
+                        match_stats = await match_obj.stats()
+                        if match_stats:
+                            await ingest_match_statistics(
+                                session, fixture.id,
+                                event["homeTeam"]["id"],
+                                event["awayTeam"]["id"],
+                                match_stats
+                            )
+                    except Exception as e:
+                        print(f"  Stats indisponibles: {e}")
+                    
+                    try:
+                        match_incidents = await match_obj.incidents()
+                        if match_incidents:
+                            await ingest_match_events(
+                                session, match_incidents, fixture.id,
+                                home_team.id, away_team.id
+                            )
+                    except Exception as e:
+                        print(f"  Events indisponibles: {e}")
+                        
+                except Exception as e:
+                    print(f"  Erreur stats/events match {event['id']}: {e}")
             
         except Exception as e:
-            print(f" Erreur match {event['id']}: {str(e)}")
+            print(f"  Erreur match {event['id']}: {str(e)}")
             continue
     
     return league_obj, season_obj
@@ -98,103 +232,144 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
 async def main():
     api = SofascoreAPI()
 
-    try:
-        # Rechercher la compétition AFCON
-        print("\n Recherche de la compétition")
-        search = Search(api, search_string="Africa Cup of Nations")
-        competition = await search.search_all()
-        can_id = competition['results'][0]['entity']['id']
-        print(f"✓ AFCON trouvée (ID: {can_id})")
+    async def fetch_all_competitions(api: SofascoreAPI, competition_names: list[str]) -> dict:
+        
+        competitions_data = {}
 
-        # Récupérer les saisons
-        can_league = League(api, can_id)
-        can_seasons = await can_league.get_seasons()
-        latest_can_season_id = can_seasons[0].get('id') if can_seasons else None
-        print(f"Dernière saison (ID: {latest_can_season_id})")
+        for name in competition_names:
+            try:
+                await asyncio.sleep(2)
 
-        # Récupérer tous les rounds
-        can_rounds = await can_league.rounds(latest_can_season_id)
-        rounds_list = [r['round'] for r in can_rounds['rounds']]
-        print(f" {len(rounds_list)} rounds trouvés")
+                search = Search(api, search_string=name)
+                result = await search.search_all()
+                if not result.get("results"):
+                    competitions_data[name] = {}
+                    continue
 
-        async with AsyncSessionLocal() as session:
+                league_id = result["results"][0]["entity"]["id"]
+                league = League(api, league_id)
+
+                # Saisons
+                seasons = await league.get_seasons()
+                latest_season_id = seasons[0].get("id") if seasons else None
+
+                # Rounds
+                rounds_list = []
+                if latest_season_id:
+                    await asyncio.sleep(1)
+                    rounds_data = await league.rounds(latest_season_id)
+                    if rounds_data and "rounds" in rounds_data:
+                        rounds_list = [r["round"] for r in rounds_data["rounds"]]
+
+                # Classements
+                standings_data = None
+                if latest_season_id:
+                    await asyncio.sleep(1)
+                    standings_data = await league.standings(latest_season_id)
+
+                competitions_data[name] = {
+                    "league_id": league_id,
+                    "seasons": seasons,
+                    "latest_season_id": latest_season_id,
+                    "rounds": rounds_list,
+                    "standings": standings_data,
+                    "league_obj": league
+                }
+
+            except Exception as e:
+                print(f"Erreur lors de la récupération de {name}: {str(e)}")
+                competitions_data[name] = {}
+
+        return competitions_data
+    
+    competitions = [
+        # "Africa Cup of Nations",
+        "Africa Cup of Nations Qual",
+        # "FIFA World Cup",
+        # "FIFA World Cup Qual"
+    ]
+
+    competitions_data = await fetch_all_competitions(api, competitions)
+
+    async with AsyncSessionLocal() as session:
+        try:
             async with session.begin():
-                league_obj = None
-                season_obj = None
-                
-                # PHASE DE GROUPES
-                print("\n" + "="*50)
-                print(" INGESTION PHASE DE GROUPES")
-                print("="*50 + "\n")
-                
-                for round_number in rounds_list:
-                    try:
-                        print(f"\n--- Round {round_number} ---")
-                        match_can = await can_league.league_fixtures_per_round(
-                            latest_can_season_id, round_number
-                        )
-
-                        league_obj, season_obj = await process_round_fixtures(
-                            session, api, league_obj, season_obj, match_can
-                        )
-
-                    except Exception as e:
-                        print(f"✗ Erreur round {round_number}: {str(e)}")
+                for comp_name, comp_data in competitions_data.items():
+                    if not comp_data or not comp_data.get("latest_season_id"):
+                        print(f"Pas de données pour {comp_name}")
                         continue
 
-                # PHASES FINALES (CUP TREE)
+                    league_obj = None
+                    season_obj = None
+                    latest_season_id = comp_data["latest_season_id"]
+                    rounds_list = comp_data["rounds"]
+                    league = comp_data["league_obj"]
+
+                    print("\n" + "="*50)
+                    print(f" INGESTION {comp_name.upper()}")
+                    print("="*50 + "\n")
+
+                    # PHASE DE GROUPES
+                    for round_number in rounds_list:
+                        try:
+                            await asyncio.sleep(1)
+                            print(f"\n--- Round {round_number} ---")
+                            match_data = await league.league_fixtures_per_round(
+                                latest_season_id, round_number
+                            )
+                            league_obj, season_obj = await process_round_fixtures(
+                                session, api, league_obj, season_obj, match_data
+                            )
+                        except Exception as e:
+                            print(f" Erreur round {round_number}: {str(e)}")
+                            continue
+
+                    # PHASES FINALES
+                    if league_obj and season_obj:
+                        await ingest_cup_tree_matches(
+                            session, api, latest_season_id,
+                            league_obj, season_obj
+                        )
+
+                    # CLASSEMENTS
+                    standings_data = comp_data["standings"]
+                    if standings_data:
+                        await ingest_standings(session, standings_data, season_obj.id)
+                        print("Classements ingérés avec succès")
+
+                    # STATISTIQUES
+                    # STATISTIQUES (seulement si saison terminée ou en cours)
+                    if league_obj and season_obj:
+                        try:
+                            await ingest_all_teams_statistics(
+                                session, api,
+                                comp_data["league_id"], latest_season_id,
+                                league_obj.id, season_obj.id
+                            )
+                        except Exception as e:
+                            print(f"Pas de stats équipes: {e}")
+                        
+                        try:
+                            await ingest_all_players_statistics(
+                                session, api,
+                                comp_data["league_id"], latest_season_id,
+                                league_obj.id, season_obj.id
+                            )
+                        except Exception as e:
+                            print(f"Pas de stats joueurs: {e}")
+
+                await session.commit()
+
                 print("\n" + "="*50)
-                print(" INGESTION PHASES FINALES")
+                print(" INGESTION TERMINÉE AVEC SUCCÈS!")
                 print("="*50 + "\n")
-                
-                if league_obj and season_obj:
-                    await ingest_cup_tree_matches(
-                        session, api, latest_can_season_id, 
-                        league_obj, season_obj
-                    )
-                else:
-                    print("Impossible de récupérer league/season pour cup_tree")
 
-            # CLASSEMENTS
-            print("\n" + "="*50)
-            print(" INGESTION CLASSEMENTS")
-            print("="*50 + "\n")
-
-            standings_data = await can_league.standings(latest_can_season_id)
-            if standings_data:
-                await ingest_standings(session, standings_data, season_obj.id)
-                print("\n Classements ingérés avec succès")
-            else:
-                print(" Aucune donnée de classement disponible")
-
-            # NOUVEAU
-            print("\n" + "="*50)
-            print("STATISTIQUES")
-            print("="*50 + "\n")
-            
-            await ingest_all_teams_statistics(
-                session, api,
-                can_id, latest_can_season_id,
-                league_obj.id, season_obj.id
-            )
-            
-            await ingest_all_players_statistics(
-                session, api,
-                can_id, latest_can_season_id,
-                league_obj.id, season_obj.id
-            )
-
-            await session.commit()
-            print("\n" + "="*50)
-            print(" INGESTION TERMINÉE AVEC SUCCÈS!")
-            print("="*50 + "\n")
-
-    except Exception as e:
-        print(f"\n ERREUR FATALE: {str(e)}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        await api.close()
+        except Exception as e:
+            print(f"\n ERREUR FATALE: {str(e)}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            await api.close()
 
 
 if __name__ == "__main__":

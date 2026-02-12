@@ -7,18 +7,17 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = "postgresql+asyncpg://football_user:password@localhost:5432/football_db"
     
-    # API Sofascore
-    # SOFASCORE_BASE_URL: str = "https://api.sofascore.com/api/v1"
-    
     # Logging
     LOG_LEVEL: str = "INFO"
     
     # Application
-    APP_NAME: str = "GOGAinde-Data"
+    APP_NAME: str = "gogainde-data"
     APP_VERSION: str = "1.0.0"
     APP_PORT: int = 8000 
     REDIS_URL: str = "redis://localhost:6379/0" 
     APP_ENV: str = "development"
+    ADMIN_SECRET: str = "goga_XsrHl4G2f6nCE1gfRGTiMfUf1ECYS00AiX6a"
+
     DEBUG: bool = False
     
     class Config:

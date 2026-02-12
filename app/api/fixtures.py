@@ -7,11 +7,13 @@ from datetime import date, datetime
 
 from app.db.database import get_db
 from app.db.models import Fixture, Team, League, Season, MatchEvent, Lineup, MatchStatistics
+from app.db.models import MatchStatus
 from app.schemas import (
     FixtureBase, FixtureDetailed, TeamBase, LeagueBase, SeasonBase,
     MatchEventSchema, LineupSchema, LineupPlayerSchema, PlayerBase,
     MatchStatisticsSchema, APIResponse, PaginationMeta, MatchStatusEnum
 )
+from app.auth import verify_api_key
 
 router = APIRouter(prefix="/fixtures", tags=["Fixtures"])
 
@@ -24,12 +26,14 @@ async def get_fixtures(
     date: Optional[date] = Query(None, description="Date du match (YYYY-MM-DD)"),
     date_from: Optional[date] = Query(None, description="Date de début"),
     date_to: Optional[date] = Query(None, description="Date de fin"),
-    status: Optional[str] = Query(None, description="Statut du match"),
+    status: Optional[MatchStatus] = Query(None, description="Statut du match"),
     round: Optional[int] = Query(None, description="Numéro du round"),
     live: Optional[bool] = Query(None, description="Matchs en cours uniquement"),
     page: int = Query(1, ge=1, description="Numéro de page"),
     per_page: int = Query(20, ge=1, le=100, description="Résultats par page"),
-    db: AsyncSession = Depends(get_db)
+    # _: None = Depends(verify_api_key),
+    db: AsyncSession = Depends(get_db),
+    # api_key = Depends(verify_api_key),
 ):
     
     query = select(Fixture).options(
@@ -274,26 +278,26 @@ async def get_fixture_statistics(
     )
 
 
-@router.get("/live/all", response_model=APIResponse)
-async def get_live_fixtures(
-    db: AsyncSession = Depends(get_db)
-):
-    query = select(Fixture).options(
-        joinedload(Fixture.home_team),
-        joinedload(Fixture.away_team),
-        joinedload(Fixture.league),
-        joinedload(Fixture.season)
-    ).where(Fixture.is_live == True).order_by(Fixture.date.desc())
+# @router.get("/live/all", response_model=APIResponse)
+# async def get_live_fixtures(
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     query = select(Fixture).options(
+#         joinedload(Fixture.home_team),
+#         joinedload(Fixture.away_team),
+#         joinedload(Fixture.league),
+#         joinedload(Fixture.season)
+#     ).where(Fixture.is_live == True).order_by(Fixture.date.desc())
     
-    result = await db.execute(query)
-    fixtures = result.scalars().all()
+#     result = await db.execute(query)
+#     fixtures = result.scalars().all()
     
-    fixtures_data = [FixtureDetailed.model_validate(fixture) for fixture in fixtures]
+#     fixtures_data = [FixtureDetailed.model_validate(fixture) for fixture in fixtures]
     
-    return APIResponse(
-        success=True,
-        data={
-            "count": len(fixtures_data),
-            "fixtures": [fixture.model_dump() for fixture in fixtures_data]
-        }
-    )
+#     return APIResponse(
+#         success=True,
+#         data={
+#             "count": len(fixtures_data),
+#             "fixtures": [fixture.model_dump() for fixture in fixtures_data]
+#         }
+#     )

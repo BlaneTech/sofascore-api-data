@@ -24,15 +24,21 @@ class MatchStatusEnum(str, Enum):
 
 
 class EventTypeEnum(str, Enum):
+    # GOAL = "goal"
+    # YELLOW_CARD = "yellowCard"
+    # RED_CARD = "redCard"
+    # SUBSTITUTION = "substitution"
+    # VAR = "var"
+    # PENALTY_MISSED = "penaltyMissed"
+
     GOAL = "goal"
-    YELLOW_CARD = "yellowCard"
-    RED_CARD = "redCard"
+    YELLOW_CARD = "yellow_card"
+    RED_CARD = "red_card"
     SUBSTITUTION = "substitution"
+    PENALTY_MISSED = "penalty_missed"
     VAR = "var"
-    PENALTY_MISSED = "penaltyMissed"
 
-
-# ================= BASE SCHEMAS =================
+# ================= TEAMS =================
 class TeamBase(BaseModel):
     id: int
     name: str
@@ -53,6 +59,7 @@ class TeamDetailed(TeamBase):
     secondary_color: Optional[str] = None
 
 
+# ================= LEAGUES & SEASONS =================
 class LeagueBase(BaseModel):
     id: int
     name: str
@@ -74,6 +81,7 @@ class SeasonBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ================= PLAYERS =================
 class PlayerBase(BaseModel):
     id: int
     name: str
@@ -94,11 +102,35 @@ class PlayerDetailed(PlayerBase):
     preferred_foot: Optional[str] = None
 
 
-class ScoreSchema(BaseModel):
-    home: Optional[int] = None
-    away: Optional[int] = None
+# ================= MANAGERS =================
+class ManagerBase(BaseModel):
+    id: int
+    name: str
+    nationality: Optional[str] = None
+    photo_url: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
 
 
+class ManagerDetailed(ManagerBase):
+    sofascore_id: int
+    slug: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    date_of_birth: Optional[date] = None
+
+
+class TeamManagerSchema(BaseModel):
+    manager: ManagerBase
+    team: TeamBase
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    is_current: bool
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ================= FIXTURES =================
 class FixtureBase(BaseModel):
     id: int
     date: datetime
@@ -136,6 +168,7 @@ class FixtureDetailed(FixtureBase):
     has_events: bool = False
 
 
+# ================= EVENTS =================
 class MatchEventSchema(BaseModel):
     id: int
     type: EventTypeEnum
@@ -148,6 +181,7 @@ class MatchEventSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ================= LINEUPS =================
 class LineupPlayerSchema(BaseModel):
     player: PlayerBase
     position: Optional[str] = None
@@ -166,8 +200,11 @@ class LineupSchema(BaseModel):
     formation: Optional[str] = None
     starters: List[LineupPlayerSchema]
     substitutes: List[LineupPlayerSchema]
+    
+    model_config = ConfigDict(from_attributes=True)
 
 
+# ================= MATCH STATISTICS =================
 class MatchStatisticsSchema(BaseModel):
     team: TeamBase
     
@@ -196,6 +233,100 @@ class MatchStatisticsSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ================= PLAYER STATISTICS =================
+class PlayerStatisticsSchema(BaseModel):
+    player: PlayerBase
+    season: SeasonBase
+    league: LeagueBase
+    
+    rating: Optional[float] = None
+    appearances: Optional[int] = None
+    minutes_played: Optional[int] = None
+    
+    goals: Optional[int] = None
+    assists: Optional[int] = None
+    big_chances_created: Optional[int] = None
+    big_chances_missed: Optional[int] = None
+    
+    total_shots: Optional[int] = None
+    shots_on_target: Optional[int] = None
+    shots_off_target: Optional[int] = None
+    goal_conversion_percentage: Optional[float] = None
+    
+    total_passes: Optional[int] = None
+    accurate_passes: Optional[int] = None
+    accurate_passes_percentage: Optional[float] = None
+    key_passes: Optional[int] = None
+    
+    total_duels_won: Optional[int] = None
+    total_duels_won_percentage: Optional[float] = None
+    tackles: Optional[int] = None
+    interceptions: Optional[int] = None
+    
+    successful_dribbles: Optional[int] = None
+    successful_dribbles_percentage: Optional[float] = None
+    
+    yellow_cards: Optional[int] = None
+    red_cards: Optional[int] = None
+    fouls: Optional[int] = None
+    
+    saves: Optional[int] = None
+    clean_sheet: Optional[int] = None
+    goals_conceded: Optional[int] = None
+    
+    penalty_goals: Optional[int] = None
+    penalties_taken: Optional[int] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ================= TEAM STATISTICS =================
+class TeamStatisticsSchema(BaseModel):
+    team: TeamBase
+    season: SeasonBase
+    league: LeagueBase
+    
+    matches: Optional[int] = None
+    
+    goals_scored: Optional[int] = None
+    goals_conceded: Optional[int] = None
+    assists: Optional[int] = None
+    
+    shots: Optional[int] = None
+    shots_on_target: Optional[int] = None
+    big_chances: Optional[int] = None
+    big_chances_created: Optional[int] = None
+    big_chances_missed: Optional[int] = None
+    
+    total_passes: Optional[int] = None
+    accurate_passes: Optional[int] = None
+    accurate_passes_percentage: Optional[float] = None
+    
+    average_ball_possession: Optional[float] = None
+    
+    tackles: Optional[int] = None
+    interceptions: Optional[int] = None
+    clearances: Optional[int] = None
+    saves: Optional[int] = None
+    clean_sheets: Optional[int] = None
+    
+    total_duels: Optional[int] = None
+    duels_won: Optional[int] = None
+    duels_won_percentage: Optional[float] = None
+    
+    yellow_cards: Optional[int] = None
+    red_cards: Optional[int] = None
+    fouls: Optional[int] = None
+    
+    corners: Optional[int] = None
+    offsides: Optional[int] = None
+    
+    avg_rating: Optional[float] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ================= STANDINGS =================
 class StandingSchema(BaseModel):
     rank: int
     team: TeamBase
@@ -227,12 +358,14 @@ class APIResponse(BaseModel):
     meta: Optional[PaginationMeta] = None
 
 
-# ================= REQUEST SCHEMAS =================
+# ================= REQUEST FILTERS =================
 class FixtureFilters(BaseModel):
     league_id: Optional[int] = None
     season_id: Optional[int] = None
     team_id: Optional[int] = None
     date: Optional[datetime] = None
+    date_from: Optional[datetime] = None
+    date_to: Optional[datetime] = None
     status: Optional[MatchStatusEnum] = None
     round: Optional[int] = None
     live: Optional[bool] = None
@@ -243,6 +376,7 @@ class FixtureFilters(BaseModel):
 class TeamFilters(BaseModel):
     league_id: Optional[int] = None
     country: Optional[str] = None
+    national: Optional[bool] = None
     search: Optional[str] = None
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=20, ge=1, le=100)
@@ -254,3 +388,29 @@ class PlayerFilters(BaseModel):
     search: Optional[str] = None
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=20, ge=1, le=100)
+
+
+class ManagerFilters(BaseModel):
+    nationality: Optional[str] = None
+    current_only: Optional[bool] = None
+    search: Optional[str] = None
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=20, ge=1, le=100)
+
+
+class EventFilters(BaseModel):
+    fixture_id: Optional[int] = None
+    team_id: Optional[int] = None
+    player_id: Optional[int] = None
+    event_type: Optional[EventTypeEnum] = None
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=20, ge=1, le=100)
+
+
+class LineupFilters(BaseModel):
+    fixture_id: Optional[int] = None
+    team_id: Optional[int] = None
+    player_id: Optional[int] = None
+    starter: Optional[bool] = None
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=50, ge=1, le=100)

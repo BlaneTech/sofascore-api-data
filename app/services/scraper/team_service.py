@@ -8,13 +8,19 @@ from app.utils import get_or_create
 async def ingest_team(session, api, team_data):
     
     team_id = team_data["id"]
+
+    team_name = team_data.get("name", "")
+    skip_keywords = ["play-off", "winner", "tbd", "to be determined", "qualifier"]
+    if any(keyword in team_name.lower() for keyword in skip_keywords):
+        print(f"  Team '{team_name}' (future/TBD) skip")
+        return None
     
     team_flag_url = None
     try:
         team_wrapper = TeamWrapper(api, team_id)
         team_flag_url = await team_wrapper.image()
     except Exception as e:
-        print(f"⚠ Erreur récupération drapeau {team_data['name']}: {str(e)}")
+        print(f"Erreur récupération drapeau {team_data['name']}: {str(e)}")
     
     team_defaults = {
         "sofascore_id": team_id,
@@ -22,11 +28,14 @@ async def ingest_team(session, api, team_data):
         "slug": team_data["slug"],
         "short_name": team_data.get("shortName"),
         "code": team_data.get("nameCode"),
-        "country": team_data["country"]["name"],
+        # "country": team_data["country"]["name"],
+        "country": team_data.get("country", {}).get("name"),
         "national": team_data.get("national", True),
         "logo_url": team_flag_url,
-        "primary_color": team_data["teamColors"]["primary"],
-        "secondary_color": team_data["teamColors"]["secondary"],
+        # "primary_color": team_data["teamColors"]["primary"],
+        # "secondary_color": team_data["teamColors"]["secondary"],
+        "primary_color": team_data.get("teamColors", {}).get("primary"),
+        "secondary_color": team_data.get("teamColors", {}).get("secondary"),
     }
     
     return await get_or_create(

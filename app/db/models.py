@@ -575,13 +575,32 @@ class Standing(Base):
     team = relationship("Team", foreign_keys=[team_id])
 
 
+# ================= API KEY =================
+class APIKey(Base):
+    __tablename__ = "api_keys"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(100), unique=True, nullable=False, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    
+    is_active = Column(Boolean, default=True)
+    
+    created_at = Column(DateTime, server_default="now()")
+    expires_at = Column(DateTime, nullable=True)
+    last_used_at = Column(DateTime, nullable=True)
+    
+    request_count = Column(Integer, default=0)
+    rate_limit = Column(Integer, default=1000)
+    
+    owner_email = Column(String(255))
+
 # ================= CREATE SCHEMA =================
 async def create_schema():
-    """Crée le schéma de la base de données"""
     engine = create_async_engine(settings.DATABASE_URL, echo=True)
     
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     
     await engine.dispose()

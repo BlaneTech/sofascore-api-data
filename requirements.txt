@@ -10,6 +10,7 @@ black==24.10.0
 certifi==2026.1.4
 click==8.3.1
 comm==0.2.3
+coverage==7.13.4
 debugpy==1.8.19
 decorator==5.2.1
 executing==2.2.1
@@ -54,11 +55,13 @@ pyee==12.1.1
 Pygments==2.19.2
 pytest==8.3.4
 pytest-asyncio==0.25.2
+pytest-cov==7.0.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 PyYAML==6.0.3
 pyzmq==27.1.0
 redis==5.2.1
+redis-cli==1.0.1
 ruff==0.8.4
 six==1.17.0
 sofascore_wrapper==1.1.1

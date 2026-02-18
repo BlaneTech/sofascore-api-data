@@ -144,6 +144,16 @@ GET  /seasons/{season_id}/standings                     # Classement d'une saiso
 GET  /seasons/{season_id}/statistics                    # Statistiques globales d'une saison
 ```
 
+### Live Matches (4 endpoints)
+
+```
+GET /live/matches
+GET /live/match/{sofascore_id}
+GET /live/match/{sofascore_id}/events
+GET /live/match/{sofascore_id}/stats
+GET /live/match/{sofascore_id}/lineups
+```
+
 ###  Utilitaires (2 endpoints)
 ```
 GET  /                            # Root

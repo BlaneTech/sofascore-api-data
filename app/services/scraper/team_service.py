@@ -44,6 +44,27 @@ async def ingest_team(session, api, team_data):
     )
 
 
+# async def ingest_players_for_team(session, api, team_sofascore_id, team_db_id):
+    
+#     try:
+#         team_wrapper = TeamWrapper(api, team_sofascore_id)
+#         squad_data = await team_wrapper.squad()
+        
+#         if not squad_data or 'players' not in squad_data:
+#             print(f"Pas de données squad pour l'équipe {team_sofascore_id}")
+#             return
+        
+#         for player_item in squad_data.get('players', []):
+#             player_data = player_item.get('player', {})
+            
+#             if not player_data or 'id' not in player_data:
+#                 continue
+            
+#             await ingest_player(session, player_data, team_db_id)
+    
+#     except Exception as e:
+#         print(f"Erreur ingestion joueurs équipe {team_sofascore_id}: {str(e)}")
+
 async def ingest_players_for_team(session, api, team_sofascore_id, team_db_id):
     
     try:
@@ -51,19 +72,40 @@ async def ingest_players_for_team(session, api, team_sofascore_id, team_db_id):
         squad_data = await team_wrapper.squad()
         
         if not squad_data or 'players' not in squad_data:
-            print(f"Pas de données squad pour l'équipe {team_sofascore_id}")
+            print(f"  Pas de squad pour équipe {team_sofascore_id}")
             return
         
-        for player_item in squad_data.get('players', []):
+        players_list = squad_data.get('players', [])
+        if not players_list:
+            print(f"  Liste joueurs vide pour équipe {team_sofascore_id}")
+            return
+        
+        count_success = 0
+        count_error = 0
+        
+        for player_item in players_list:
             player_data = player_item.get('player', {})
             
             if not player_data or 'id' not in player_data:
+                count_error += 1
                 continue
             
-            await ingest_player(session, player_data, team_db_id)
+            try:
+                await ingest_player(session, player_data, team_db_id)
+                count_success += 1
+            except Exception as e:
+                count_error += 1
+                continue
+        
+        print(f"  Joueurs: {count_success} réussis, {count_error} erreurs")
     
     except Exception as e:
-        print(f"Erreur ingestion joueurs équipe {team_sofascore_id}: {str(e)}")
+        error_msg = str(e).lower()
+        
+        if "missingplayers" in error_msg or "404" in error_msg or "not found" in error_msg:
+            print(f"  Équipe {team_sofascore_id}: roster non disponible")
+        else:
+            print(f"  Erreur joueurs équipe {team_sofascore_id}: {str(e)}")
 
 
 async def ingest_player(session, player_data, team_db_id=None):

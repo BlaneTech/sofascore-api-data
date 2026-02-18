@@ -6,7 +6,7 @@ import time
 
 from app.core.config import settings
 from app.api import (leagues, teams, fixtures, players, standings,
-                     events, statistics, lineups, managers, seasons
+                     events, statistics, lineups, managers, seasons, live_routes
 )
 from app.api import api_keys_routes
 from app.auth import verify_api_key
@@ -58,7 +58,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
-
 # Routes de base
 @app.get("/", tags=["Root"])
 async def root():
@@ -101,7 +100,7 @@ app.include_router(lineups.router, dependencies=[Depends(verify_api_key)])
 app.include_router(standings.router, dependencies=[Depends(verify_api_key)])
 app.include_router(events.router, dependencies=[Depends(verify_api_key)])
 app.include_router(statistics.router, dependencies=[Depends(verify_api_key)])
-
+app.include_router(live_routes.router, dependencies=[Depends(verify_api_key)])
 
 if __name__ == "__main__":
     import uvicorn

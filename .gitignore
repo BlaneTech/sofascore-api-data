@@ -11,7 +11,8 @@ notebooks/
 pipeline/_backups/
 pipeline/new_models.py
 pipeline/ingestion.py
-notebook/
+tests/
+app/api/COPY_live_routes.py
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
@@ -36,5 +37,6 @@ ENV/
 Thumbs.db
 
 postgres_data/
+.pytest_cache/
 
 

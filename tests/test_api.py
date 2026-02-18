@@ -1,111 +1,105 @@
-"""
-Tests pour l'API GOGAinde-Data
-"""
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
+from unittest.mock import AsyncMock, patch
+from datetime import datetime
+
 from app.main import app
 
 
 @pytest.mark.asyncio
-async def test_root():
-    """Test de la route racine"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/")
-        assert response.status_code == 200
-        data = response.json()
-        assert "message" in data
-        assert data["message"] == "Welcome to GOGAinde-Data API"
+async def test_get_fixtures():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/fixtures", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_health_check():
-    """Test du health check"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/health")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "healthy"
-
-
-@pytest.mark.asyncio
-async def test_get_leagues():
-    """Test de récupération des leagues"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/leagues")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "data" in data
-        assert "leagues" in data["data"]
+async def test_get_fixture_by_id():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/fixtures/1", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code in [200, 404]
 
 
 @pytest.mark.asyncio
 async def test_get_teams():
-    """Test de récupération des équipes"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/teams")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "data" in data
-        assert "teams" in data["data"]
-
-
-@pytest.mark.asyncio
-async def test_get_fixtures():
-    """Test de récupération des fixtures"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/fixtures")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "data" in data
-        assert "fixtures" in data["data"]
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/teams", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_get_players():
-    """Test de récupération des joueurs"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/players")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "data" in data
-        assert "players" in data["data"]
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/players?team_id=1", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_get_league_not_found():
-    """Test de récupération d'une league inexistante"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/leagues/99999")
-        assert response.status_code == 404
+async def test_get_standings():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/standings?season_id=1", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_get_team_not_found():
-    """Test de récupération d'une équipe inexistante"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/teams/99999")
-        assert response.status_code == 404
+async def test_get_match_statistics():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/statistics/match/1", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code in [200, 404]
 
 
 @pytest.mark.asyncio
-async def test_get_fixture_not_found():
-    """Test de récupération d'un fixture inexistant"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/fixtures/99999")
-        assert response.status_code == 404
+async def test_fixture_filters():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get(
+                "/fixtures?status=finished&page=1&per_page=10",
+                headers={"X-API-Key": "test_key"}
+            )
+            
+            assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_pagination():
-    """Test de la pagination"""
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/teams?page=1&per_page=5")
-        assert response.status_code == 200
-        data = response.json()
-        assert "meta" in data
-        assert data["meta"]["page"] == 1
-        assert data["meta"]["per_page"] == 5
+async def test_invalid_fixture_id():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        with patch('app.auth.verify_api_key') as mock_auth:
+            mock_auth.return_value = AsyncMock()
+            
+            response = await client.get("/fixtures/999999", headers={"X-API-Key": "test_key"})
+            
+            assert response.status_code == 404

@@ -1,6 +1,7 @@
 import asyncio
 import sys
 from pathlib import Path
+from datetime import datetime
 
 # Ajouter le répertoire parent au path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -29,30 +30,41 @@ from sqlalchemy import select
     
 #     for event in match_data["events"]:
 #         try:
-#              # VÉRIFIER SI LE MATCH EXISTE DÉJÀ
+#             # Vérifier si match existe déjà
 #             fixture_query = select(Fixture).where(Fixture.sofascore_id == event["id"])
 #             fixture_result = await session.execute(fixture_query)
 #             existing_fixture = fixture_result.scalar_one_or_none()
             
 #             if existing_fixture:
-#                 print(f"  Match {event['id']} déjà en base, skip")
+#                 print(f"  Match {event['id']} déjà ingéré, skip")
 #                 continue
-
+            
 #             if not league_obj:
 #                 league_obj = await ingest_league(session, event)
 #                 season_obj = await ingest_season(session, event, league_obj.id)
             
-#             match_status = event.get("status", {}).get("type")
+#             match_status = event.get("status", {}).get("type", "notstarted")
             
-#             # Équipes (toujours)
-#             home_team = await ingest_team(session, api, event["homeTeam"])
-#             away_team = await ingest_team(session, api, event["awayTeam"])
+#             # Équipes
+#             try:
+#                 home_team = await ingest_team(session, api, event["homeTeam"])
+#                 away_team = await ingest_team(session, api, event["awayTeam"])
+#             except Exception as e:
+#                 print(f"  Erreur équipes match {event['id']}: {e}")
+#                 continue
             
-#             # Joueurs (toujours)
-#             await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
-#             await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
+#             if not home_team or not away_team:
+#                 print(f"  Équipes manquantes match {event['id']}, skip")
+#                 continue
             
-#             # Managers (toujours)
+#             # Joueurs
+#             try:
+#                 await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
+#                 await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
+#             except Exception as e:
+#                 print(f"  Erreur joueurs: {e}")
+            
+#             # Managers
 #             try:
 #                 await ingest_managers_for_fixture(
 #                     session, api, event["id"],
@@ -62,51 +74,70 @@ from sqlalchemy import select
 #             except Exception as e:
 #                 print(f"  Erreur managers: {e}")
 
-#             # Fixture (toujours)
-#             fixture = await ingest_fixture(
-#                 session, event, league_obj.id, season_obj.id,
-#                 home_team.id, away_team.id
-#             )
+#             # Fixture
+#             try:
+#                 fixture = await ingest_fixture(
+#                     session, event, league_obj.id, season_obj.id,
+#                     home_team.id, away_team.id
+#                 )
+#             except Exception as e:
+#                 print(f"  Erreur fixture {event['id']}: {e}")
+#                 continue
             
-#             # Lineups (si match commencé ou terminé)
+#             # Lineups (si match commencé)
 #             if match_status in ["inprogress", "finished"]:
 #                 try:
 #                     match_obj = Match(api, event["id"])
-#                     home_lineups = await match_obj.lineups_home()
-#                     away_lineups = await match_obj.lineups_away()
                     
-#                     if home_lineups:
-#                         await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
-#                     if away_lineups:
-#                         await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
+#                     try:
+#                         home_lineups = await match_obj.lineups_home()
+#                         if home_lineups:
+#                             await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
+#                     except Exception as e:
+#                         print(f"  Lineups home indisponibles: {e}")
+                    
+#                     try:
+#                         away_lineups = await match_obj.lineups_away()
+#                         if away_lineups:
+#                             await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
+#                     except Exception as e:
+#                         print(f"  Lineups away indisponibles: {e}")
+                        
 #                 except Exception as e:
-#                     print(f"  Pas de lineups: {e}")
+#                     print(f"  Erreur lineups match {event['id']}: {e}")
             
-#             # Stats et événements (seulement si terminé)
+#             # Stats et events (si terminé)
 #             if match_status == "finished":
 #                 try:
 #                     match_obj = Match(api, event["id"])
                     
-#                     match_stats = await match_obj.stats()
-#                     if match_stats:
-#                         await ingest_match_statistics(
-#                             session, fixture.id,
-#                             event["homeTeam"]["id"],
-#                             event["awayTeam"]["id"],
-#                             match_stats
-#                         )
+#                     try:
+#                         match_stats = await match_obj.stats()
+#                         if match_stats:
+#                             await ingest_match_statistics(
+#                                 session, fixture.id,
+#                                 event["homeTeam"]["id"],
+#                                 event["awayTeam"]["id"],
+#                                 match_stats
+#                             )
+#                     except Exception as e:
+#                         print(f"  Stats indisponibles: {e}")
                     
-#                     match_incidents = await match_obj.incidents()
-#                     if match_incidents:
-#                         await ingest_match_events(
-#                             session, match_incidents, fixture.id,
-#                             home_team.id, away_team.id
-#                         )
+#                     try:
+#                         match_incidents = await match_obj.incidents()
+#                         if match_incidents:
+#                             await ingest_match_events(
+#                                 session, match_incidents, fixture.id,
+#                                 home_team.id, away_team.id
+#                             )
+#                     except Exception as e:
+#                         print(f"  Events indisponibles: {e}")
+                        
 #                 except Exception as e:
-#                     print(f"  Pas de stats: {e}")
+#                     print(f"  Erreur stats/events match {event['id']}: {e}")
             
 #         except Exception as e:
-#             print(f" Erreur match {event['id']}: {str(e)}")
+#             print(f"  Erreur match {event['id']}: {str(e)}")
 #             continue
     
 #     return league_obj, season_obj
@@ -116,7 +147,6 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
     
     for event in match_data["events"]:
         try:
-            # Vérifier si match existe déjà
             fixture_query = select(Fixture).where(Fixture.sofascore_id == event["id"])
             fixture_result = await session.execute(fixture_query)
             existing_fixture = fixture_result.scalar_one_or_none()
@@ -130,17 +160,18 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                 season_obj = await ingest_season(session, event, league_obj.id)
             
             match_status = event.get("status", {}).get("type", "notstarted")
+            # print(f"  Match {event['id']} - Status: {match_status}")
             
             # Équipes
             try:
                 home_team = await ingest_team(session, api, event["homeTeam"])
                 away_team = await ingest_team(session, api, event["awayTeam"])
             except Exception as e:
-                print(f"  Erreur équipes match {event['id']}: {e}")
+                print(f" Erreur équipes: {e}")
                 continue
             
             if not home_team or not away_team:
-                print(f"  Équipes manquantes match {event['id']}, skip")
+                print(f"Équipes manquantes, skip")
                 continue
             
             # Joueurs
@@ -148,7 +179,7 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                 await ingest_players_for_team(session, api, event["homeTeam"]["id"], home_team.id)
                 await ingest_players_for_team(session, api, event["awayTeam"]["id"], away_team.id)
             except Exception as e:
-                print(f"  Erreur joueurs: {e}")
+                print(f" Erreur joueurs: {e}")
             
             # Managers
             try:
@@ -158,7 +189,7 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                     event["awayTeam"]["id"]
                 )
             except Exception as e:
-                print(f"  Erreur managers: {e}")
+                print(f"Erreur managers: {e}")
 
             # Fixture
             try:
@@ -167,63 +198,51 @@ async def process_round_fixtures(session, api, league_obj, season_obj, match_dat
                     home_team.id, away_team.id
                 )
             except Exception as e:
-                print(f"  Erreur fixture {event['id']}: {e}")
+                print(f"Erreur fixture: {e}")
                 continue
             
-            # Lineups (si match commencé)
+            # Lineups
             if match_status in ["inprogress", "finished"]:
                 try:
                     match_obj = Match(api, event["id"])
                     
-                    try:
-                        home_lineups = await match_obj.lineups_home()
-                        if home_lineups:
-                            await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
-                    except Exception as e:
-                        print(f"  Lineups home indisponibles: {e}")
+                    home_lineups = await match_obj.lineups_home()
+                    if home_lineups:
+                        await ingest_lineups(session, fixture.id, home_lineups, event["homeTeam"]["id"])
                     
-                    try:
-                        away_lineups = await match_obj.lineups_away()
-                        if away_lineups:
-                            await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
-                    except Exception as e:
-                        print(f"  Lineups away indisponibles: {e}")
+                    away_lineups = await match_obj.lineups_away()
+                    if away_lineups:
+                        await ingest_lineups(session, fixture.id, away_lineups, event["awayTeam"]["id"])
                         
                 except Exception as e:
-                    print(f"  Erreur lineups match {event['id']}: {e}")
+                    print(f" Lineups indisponibles: {e}")
             
-            # Stats et events (si terminé)
+            # Stats et events
             if match_status == "finished":
                 try:
                     match_obj = Match(api, event["id"])
                     
-                    try:
-                        match_stats = await match_obj.stats()
-                        if match_stats:
-                            await ingest_match_statistics(
-                                session, fixture.id,
-                                event["homeTeam"]["id"],
-                                event["awayTeam"]["id"],
-                                match_stats
-                            )
-                    except Exception as e:
-                        print(f"  Stats indisponibles: {e}")
+                    match_stats = await match_obj.stats()
+                    if match_stats:
+                        await ingest_match_statistics(
+                            session, fixture.id,
+                            event["homeTeam"]["id"],
+                            event["awayTeam"]["id"],
+                            match_stats
+                        )
                     
-                    try:
-                        match_incidents = await match_obj.incidents()
-                        if match_incidents:
-                            await ingest_match_events(
-                                session, match_incidents, fixture.id,
-                                home_team.id, away_team.id
-                            )
-                    except Exception as e:
-                        print(f"  Events indisponibles: {e}")
+                    match_incidents = await match_obj.incidents()
+                    if match_incidents:
+                        await ingest_match_events(
+                            session, match_incidents, fixture.id,
+                            home_team.id, away_team.id
+                        )
                         
                 except Exception as e:
-                    print(f"  Erreur stats/events match {event['id']}: {e}")
+                    print(f" Stats/events indisponibles: {e}")
             
         except Exception as e:
-            print(f"  Erreur match {event['id']}: {str(e)}")
+            print(f" Erreur match {event['id']}: {str(e)}")
             continue
     
     return league_obj, season_obj
@@ -332,31 +351,57 @@ async def main():
                         )
 
                     # CLASSEMENTS
+                    # if not season_obj:
+                    #     continue
+                    # else:
                     standings_data = comp_data["standings"]
                     if standings_data:
-                        await ingest_standings(session, standings_data, season_obj.id)
-                        print("Classements ingérés avec succès")
+                            await ingest_standings(session, standings_data, season_obj.id)
+                            print("Classements ingérés avec succès")
 
                     # STATISTIQUES
-                    # STATISTIQUES (seulement si saison terminée ou en cours)
-                    if league_obj and season_obj:
-                        try:
-                            await ingest_all_teams_statistics(
-                                session, api,
-                                comp_data["league_id"], latest_season_id,
-                                league_obj.id, season_obj.id
-                            )
-                        except Exception as e:
-                            print(f"Pas de stats équipes: {e}")
+                    # print("\n" + "="*50)
+                    # print("STATISTIQUES")
+                    # print("="*50 + "\n")
+
+                    # async with AsyncSessionLocal() as session:
+                    #     first_match_query = select(Fixture).where(
+                    #         Fixture.season_id == season_obj.id
+                    #     ).order_by(Fixture.date.asc()).limit(1)
                         
-                        try:
-                            await ingest_all_players_statistics(
-                                session, api,
-                                comp_data["league_id"], latest_season_id,
-                                league_obj.id, season_obj.id
-                            )
-                        except Exception as e:
-                            print(f"Pas de stats joueurs: {e}")
+                    #     result = await session.execute(first_match_query)
+                    #     first_match = result.scalar_one_or_none()
+                        
+                    #     finished_match_query = select(Fixture).where(
+                    #         Fixture.season_id == season_obj.id,
+                    #         Fixture.status == "finished"
+                    #     ).limit(1)
+                        
+                    #     result = await session.execute(finished_match_query)
+                    #     has_finished_matches = result.scalar_one_or_none()
+                        
+                    #     if not first_match:
+                    #         print(f"Competition pas encore commencée")
+                    #     elif not has_finished_matches:
+                    #         print("Aucun match terminé, stats pas encore disponibles")
+                    #     else:
+                    try:
+                        await ingest_all_teams_statistics(
+                            session, api,
+                            comp_data["league_id"], latest_season_id,
+                            league_obj.id, season_obj.id
+                        )
+                    except Exception as e:
+                        print(f"Erreur stats équipes: {e}")
+                    
+                    try:
+                        await ingest_all_players_statistics(
+                            session, api,
+                            comp_data["league_id"], latest_season_id,
+                            league_obj.id, season_obj.id
+                        )
+                    except Exception as e:
+                        print(f"Erreur stats joueurs: {e}")
 
                 await session.commit()
 

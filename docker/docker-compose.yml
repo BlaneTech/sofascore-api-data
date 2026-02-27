@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -37,8 +35,9 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: api
     container_name: gogainde_api
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/${POSTGRES_DB:-gogainde_data}
@@ -52,15 +51,16 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ..:/app
     networks:
       - gogainde_net
     restart: unless-stopped
 
   live_tracker:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: api
     container_name: gogainde_live_tracker
     command: python -m app.live_tracker
     environment:
@@ -72,90 +72,113 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ..:/app
     networks:
       - gogainde_net
     restart: unless-stopped
 
+  airflow-init:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: airflow
+    container_name: gogainde_airflow_init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/airflow
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-}
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-changeme}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/${POSTGRES_DB:-gogainde_data}
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ../airflow/dags:/opt/airflow/dags
+      - ../airflow/logs:/opt/airflow/logs
+      - ../airflow/plugins:/opt/airflow/plugins
+      - ..:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gogainde_net
+    command:
+      - bash
+      - -c
+      - |
+        airflow db migrate &&
+        airflow users create \
+          --username ${AIRFLOW_USER:-admin} \
+          --password ${AIRFLOW_PASSWORD:-admin} \
+          --firstname Admin \
+          --lastname Admin \
+          --role Admin \
+          --email admin@example.com
+    restart: on-failure
+
   airflow-webserver:
-    image: apache/airflow:2.8.1-python3.12
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: airflow
     container_name: gogainde_airflow_webserver
     command: webserver
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/airflow
       AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-}
-      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-changeme}
-      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
-      _AIRFLOW_DB_MIGRATE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
-      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_USER:-admin}
-      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_PASSWORD:-admin}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/${POSTGRES_DB:-gogainde_data}
+      REDIS_URL: redis://redis:6379
     ports:
       - "8080:8080"
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/plugins:/opt/airflow/plugins
-      - ./airflow/config:/opt/airflow/config
-      - .:/app
+      - ../airflow/dags:/opt/airflow/dags
+      - ../airflow/logs:/opt/airflow/logs
+      - ../airflow/plugins:/opt/airflow/plugins
+      - ..:/app
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - gogainde_net
+      airflow-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - gogainde_net
     restart: unless-stopped
 
   airflow-scheduler:
-    image: apache/airflow:2.8.1-python3.12
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: airflow
     container_name: gogainde_airflow_scheduler
     command: scheduler
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/airflow
       AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-}
-      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/${POSTGRES_DB:-gogainde_data}
+      REDIS_URL: redis://redis:6379
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/plugins:/opt/airflow/plugins
-      - .:/app
+      - ../airflow/dags:/opt/airflow/dags
+      - ../airflow/logs:/opt/airflow/logs
+      - ../airflow/plugins:/opt/airflow/plugins
+      - ..:/app
     depends_on:
       postgres:
         condition: service_healthy
-      airflow-webserver:
-        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
     networks:
       - gogainde_net
     restart: unless-stopped
-
-  airflow-init:
-    image: apache/airflow:2.8.1-python3.12
-    container_name: gogainde_airflow_init
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        pip install --no-cache-dir -r /app/requirements.txt
-        airflow db migrate
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-gogainde}:${POSTGRES_PASSWORD:-gogainde123}@postgres:5432/airflow
-    volumes:
-      - .:/app
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - gogainde_net
 
 volumes:
   postgres_data:

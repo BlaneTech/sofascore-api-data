@@ -127,6 +127,9 @@ make scrape-afcon
 
 # Ou directement
 python pipeline/ingest_afcon.py
+
+# Lancer les match live
+make live_tracker
 ```
 
 ### Lancer l'API

@@ -1,0 +1,1549 @@
+{
+  "cupTrees": [
+    {
+      "id": 10846093,
+      "name": "Africa Cup of Nations 2025, Knockout stage",
+      "tournament": {
+        "name": "Africa Cup of Nations, Knockout stage",
+        "slug": "africa-cup-of-nations-knockout-stage",
+        "category": {
+          "name": "Africa",
+          "slug": "africa",
+          "sport": {
+            "name": "Football",
+            "slug": "football",
+            "id": 1
+          },
+          "id": 1466,
+          "flag": "africa",
+          "fieldTranslations": {
+            "nameTranslation": {
+              "ar": "أفريقيا"
+            },
+            "shortNameTranslation": {}
+          }
+        },
+        "uniqueTournament": {
+          "name": "Africa Cup of Nations",
+          "slug": "africa-cup-of-nations",
+          "primaryColorHex": "#00752e",
+          "secondaryColorHex": "#edc73e",
+          "category": {
+            "name": "Africa",
+            "slug": "africa",
+            "sport": {
+              "name": "Football",
+              "slug": "football",
+              "id": 1
+            },
+            "id": 1466,
+            "flag": "africa",
+            "fieldTranslations": {
+              "nameTranslation": {
+                "ar": "أفريقيا"
+              },
+              "shortNameTranslation": {}
+            }
+          },
+          "userCount": 404301,
+          "id": 270,
+          "displayInverseHomeAwayTeams": false,
+          "fieldTranslations": {
+            "nameTranslation": {
+              "ar": "كأس الأمم الأفريقية",
+              "hi": "अफ्रीका कप ऑफ नेशंस",
+              "bn": "আফ্রিকা কাপ অফ নেশনস"
+            },
+            "shortNameTranslation": {}
+          }
+        },
+        "priority": 727,
+        "isLive": false,
+        "id": 41175,
+        "fieldTranslations": {
+          "nameTranslation": {
+            "ar": "كأس الأمم الأفريقية، مرحلة الإقصاء",
+            "hi": "अफ्रीका कप ऑफ नेशंस, नॉकआउट स्टेज",
+            "bn": "আফ্রিকা কাপ অফ নেশনস, নকআউট স্টেজ"
+          },
+          "shortNameTranslation": {}
+        }
+      },
+      "currentRound": 5,
+      "rounds": [
+        {
+          "order": 1,
+          "type": 8,
+          "description": "1/8",
+          "blocks": [
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 1,
+              "result": "2:1",
+              "homeTeamScore": "2",
+              "awayTeamScore": "1",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Mali",
+                    "slug": "mali",
+                    "shortName": "Mali",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 150441,
+                    "nameCode": "MLI",
+                    "ranking": 54,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4831,
+                    "teamColors": {
+                      "primary": "#fefe00",
+                      "secondary": "#d63835",
+                      "text": "#d63835"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "مالي",
+                        "ru": "Мали",
+                        "hi": "माली",
+                        "bn": "মালি"
+                      },
+                      "shortNameTranslation": {
+                        "ar": "مالي"
+                      }
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281194
+                },
+                {
+                  "team": {
+                    "name": "Tunisia",
+                    "slug": "tunisia",
+                    "shortName": "Tunisia",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 176157,
+                    "nameCode": "TUN",
+                    "ranking": 47,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4729,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "تونس",
+                        "ru": "Тунис",
+                        "hi": "ट्यूनीशिया",
+                        "bn": "তিউনিসিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281195
+                }
+              ],
+              "hasNextRoundLink": true,
+              "id": 2876837,
+              "events": [
+                14058088
+              ],
+              "blockId": 1,
+              "seriesStartDateTimestamp": 1767466800,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 2,
+              "result": "3:1",
+              "homeTeamScore": "3",
+              "awayTeamScore": "1",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Senegal",
+                    "slug": "senegal",
+                    "shortName": "Senegal",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 420255,
+                    "nameCode": "SEN",
+                    "ranking": 12,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4739,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#047151",
+                      "text": "#047151"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "السنغال",
+                        "ru": "Сенегал",
+                        "hi": "सेनेगल",
+                        "bn": "সেনেগাল"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281196
+                },
+                {
+                  "team": {
+                    "name": "Sudan",
+                    "slug": "sudan",
+                    "shortName": "Sudan",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 55918,
+                    "nameCode": "SDN",
+                    "ranking": 117,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4734,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "السودان",
+                        "ru": "Судан",
+                        "hi": "सूडान",
+                        "bn": "সুদান"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281197
+                }
+              ],
+              "hasNextRoundLink": true,
+              "id": 2876838,
+              "events": [
+                14058102
+              ],
+              "blockId": 2,
+              "seriesStartDateTimestamp": 1767456000,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 3,
+              "result": "3:1",
+              "homeTeamScore": "3",
+              "awayTeamScore": "1",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Egypt",
+                    "slug": "egypt",
+                    "shortName": "Egypt",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 550135,
+                    "nameCode": "EGY",
+                    "ranking": 31,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4758,
+                    "teamColors": {
+                      "primary": "#f00000",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "مصر",
+                        "ru": "Египет",
+                        "hi": "इजिप्ट",
+                        "bn": "মিশর"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281198
+                },
+                {
+                  "team": {
+                    "name": "Benin",
+                    "slug": "benin",
+                    "shortName": "Benin",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 67019,
+                    "nameCode": "BEN",
+                    "ranking": 92,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4744,
+                    "teamColors": {
+                      "primary": "#ffff00",
+                      "secondary": "#2d8d65",
+                      "text": "#2d8d65"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "بنين",
+                        "ru": "Бенин",
+                        "hi": "बेनिन",
+                        "bn": "বেনিন"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281199
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876839,
+              "events": [
+                14058090
+              ],
+              "blockId": 3,
+              "seriesStartDateTimestamp": 1767628800,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 4,
+              "result": "3:0",
+              "homeTeamScore": "3",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Côte d'Ivoire",
+                    "slug": "cote-divoire",
+                    "shortName": "Côte d'Ivoire",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 287999,
+                    "nameCode": "CIV",
+                    "ranking": 37,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4768,
+                    "teamColors": {
+                      "primary": "#f77f00",
+                      "secondary": "#009e60",
+                      "text": "#009e60"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "ساحل العاج",
+                        "ru": "Кот д´ Ивуар",
+                        "hi": "कोट डी'आईवॉयर",
+                        "bn": "কোট ডি'আইভরি"
+                      },
+                      "shortNameTranslation": {
+                        "ar": "ساحل العاج"
+                      }
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281200
+                },
+                {
+                  "team": {
+                    "name": "Burkina Faso",
+                    "slug": "burkina-faso",
+                    "shortName": "Burkina Faso",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 154133,
+                    "nameCode": "BUR",
+                    "ranking": 62,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4749,
+                    "teamColors": {
+                      "primary": "#008000",
+                      "secondary": "#fc0303",
+                      "text": "#fc0303"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "بوركينا فاسو",
+                        "ru": "Буркина-Фасо",
+                        "hi": "बुर्किना फासो",
+                        "bn": "বুরকিনা ফাসো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281201
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876840,
+              "events": [
+                14058095
+              ],
+              "blockId": 4,
+              "seriesStartDateTimestamp": 1767726000,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 5,
+              "result": "1:2",
+              "homeTeamScore": "1",
+              "awayTeamScore": "2",
+              "participants": [
+                {
+                  "team": {
+                    "name": "South Africa",
+                    "slug": "south-africa",
+                    "shortName": "South Africa",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 137272,
+                    "nameCode": "RSA",
+                    "ranking": 60,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4736,
+                    "teamColors": {
+                      "primary": "#ffd800",
+                      "secondary": "#008040",
+                      "text": "#008040"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "جنوب أفريقيا",
+                        "ru": "Южная Африка",
+                        "hi": "साउथ अफ्रीका",
+                        "bn": "দক্ষিণ আফ্রিকা"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 1,
+                  "id": 5281202
+                },
+                {
+                  "team": {
+                    "name": "Cameroon",
+                    "slug": "cameroon",
+                    "shortName": "Cameroon",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 183224,
+                    "nameCode": "CAM",
+                    "ranking": 45,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4751,
+                    "teamColors": {
+                      "primary": "#006633",
+                      "secondary": "#d01124",
+                      "text": "#d01124"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "الكاميرون",
+                        "ru": "Камерун",
+                        "hi": "कैमरून",
+                        "bn": "ক্যামেরুন"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 2,
+                  "id": 5281203
+                }
+              ],
+              "hasNextRoundLink": true,
+              "id": 2876841,
+              "events": [
+                14058092
+              ],
+              "blockId": 5,
+              "seriesStartDateTimestamp": 1767553200,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 6,
+              "result": "1:0",
+              "homeTeamScore": "1",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Morocco",
+                    "slug": "morocco",
+                    "shortName": "Morocco",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 679352,
+                    "nameCode": "MOR",
+                    "ranking": 8,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4778,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#006600",
+                      "text": "#006600"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "المغرب",
+                        "ru": "Марокко",
+                        "hi": "मोरक्को",
+                        "bn": "মরক্কো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281204
+                },
+                {
+                  "team": {
+                    "name": "Tanzania",
+                    "slug": "tanzania",
+                    "shortName": "Tanzania",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 105289,
+                    "nameCode": "TAN",
+                    "ranking": 110,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4835,
+                    "teamColors": {
+                      "primary": "#1400c7",
+                      "secondary": "#000000",
+                      "text": "#000000"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "تنزانيا",
+                        "ru": "Танзания",
+                        "hi": "तंजानिया",
+                        "bn": "তানজানিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281205
+                }
+              ],
+              "hasNextRoundLink": true,
+              "id": 2876842,
+              "events": [
+                14058098
+              ],
+              "blockId": 6,
+              "seriesStartDateTimestamp": 1767542400,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 7,
+              "result": "1:0",
+              "homeTeamScore": "1",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Algeria",
+                    "slug": "algeria",
+                    "shortName": "Algeria",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 295570,
+                    "nameCode": "DZA",
+                    "ranking": 28,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4691,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#23bc55",
+                      "text": "#23bc55"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "الجزائر",
+                        "ru": "Алжир",
+                        "hi": "अल्जीरिया",
+                        "bn": "আলজেরিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281206
+                },
+                {
+                  "team": {
+                    "name": "DR Congo",
+                    "slug": "dr-congo",
+                    "shortName": "DR Congo",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 239870,
+                    "nameCode": "DCO",
+                    "ranking": 48,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4823,
+                    "teamColors": {
+                      "primary": "#007fff",
+                      "secondary": "#f8181e",
+                      "text": "#f8181e"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "جمهورية الكونغو الديمقراطية",
+                        "ru": "Демократическая республика Конго",
+                        "hi": "डीआर कांगो",
+                        "bn": "ডিআর কঙ্গো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281207
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876843,
+              "events": [
+                14058099
+              ],
+              "blockId": 7,
+              "seriesStartDateTimestamp": 1767715200,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 8,
+              "result": "4:0",
+              "homeTeamScore": "4",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Nigeria",
+                    "slug": "nigeria",
+                    "shortName": "Nigeria",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 404677,
+                    "nameCode": "NIG",
+                    "ranking": 26,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4785,
+                    "teamColors": {
+                      "primary": "#39b54a",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "نيجيريا",
+                        "ru": "Нигерия",
+                        "hi": "नाइजीरिया",
+                        "bn": "নাইজেরিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5281208
+                },
+                {
+                  "team": {
+                    "name": "Mozambique",
+                    "slug": "mozambique",
+                    "shortName": "Mozambique",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 52135,
+                    "nameCode": "MOZ",
+                    "ranking": 101,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4783,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#ffff00",
+                      "text": "#ffff00"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "موزمبيق",
+                        "ru": "Мозамбик",
+                        "hi": "मोज़ाम्बिक",
+                        "bn": "মোজাম্বিক"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5281209
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876844,
+              "events": [
+                14058100
+              ],
+              "blockId": 8,
+              "seriesStartDateTimestamp": 1767639600,
+              "automaticProgression": false
+            }
+          ],
+          "id": 219645
+        },
+        {
+          "order": 2,
+          "type": 4,
+          "description": "Quarterfinals",
+          "blocks": [
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 1,
+              "result": "away won",
+              "homeTeamScore": "0",
+              "awayTeamScore": "1",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Mali",
+                    "slug": "mali",
+                    "shortName": "Mali",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 150441,
+                    "nameCode": "MLI",
+                    "ranking": 54,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4831,
+                    "teamColors": {
+                      "primary": "#fefe00",
+                      "secondary": "#d63835",
+                      "text": "#d63835"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "مالي",
+                        "ru": "Мали",
+                        "hi": "माली",
+                        "bn": "মালি"
+                      },
+                      "shortNameTranslation": {
+                        "ar": "مالي"
+                      }
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 1,
+                  "order": 1,
+                  "id": 5281210
+                },
+                {
+                  "team": {
+                    "name": "Senegal",
+                    "slug": "senegal",
+                    "shortName": "Senegal",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 420255,
+                    "nameCode": "SEN",
+                    "ranking": 12,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4739,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#047151",
+                      "text": "#047151"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "السنغال",
+                        "ru": "Сенегал",
+                        "hi": "सेनेगल",
+                        "bn": "সেনেগাল"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 2,
+                  "order": 2,
+                  "id": 5281211
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876845,
+              "events": [
+                14058097
+              ],
+              "blockId": 1,
+              "seriesStartDateTimestamp": 1767974400,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 2,
+              "result": "home won",
+              "homeTeamScore": "3",
+              "awayTeamScore": "2",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Egypt",
+                    "slug": "egypt",
+                    "shortName": "Egypt",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 550135,
+                    "nameCode": "EGY",
+                    "ranking": 31,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4758,
+                    "teamColors": {
+                      "primary": "#f00000",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "مصر",
+                        "ru": "Египет",
+                        "hi": "इजिप्ट",
+                        "bn": "মিশর"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 3,
+                  "order": 1,
+                  "id": 5281429
+                },
+                {
+                  "team": {
+                    "name": "Côte d'Ivoire",
+                    "slug": "cote-divoire",
+                    "shortName": "Côte d'Ivoire",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 287999,
+                    "nameCode": "CIV",
+                    "ranking": 37,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4768,
+                    "teamColors": {
+                      "primary": "#f77f00",
+                      "secondary": "#009e60",
+                      "text": "#009e60"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "ساحل العاج",
+                        "ru": "Кот д´ Ивуар",
+                        "hi": "कोट डी'आईवॉयर",
+                        "bn": "কোট ডি'আইভরি"
+                      },
+                      "shortNameTranslation": {
+                        "ar": "ساحل العاج"
+                      }
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 4,
+                  "order": 2,
+                  "id": 5282935
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876846,
+              "events": [
+                14058094
+              ],
+              "blockId": 2,
+              "seriesStartDateTimestamp": 1768071600,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 3,
+              "result": "away won",
+              "homeTeamScore": "0",
+              "awayTeamScore": "2",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Cameroon",
+                    "slug": "cameroon",
+                    "shortName": "Cameroon",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 183224,
+                    "nameCode": "CAM",
+                    "ranking": 45,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4751,
+                    "teamColors": {
+                      "primary": "#006633",
+                      "secondary": "#d01124",
+                      "text": "#d01124"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "الكاميرون",
+                        "ru": "Камерун",
+                        "hi": "कैमरून",
+                        "bn": "ক্যামেরুন"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 5,
+                  "order": 1,
+                  "id": 5281212
+                },
+                {
+                  "team": {
+                    "name": "Morocco",
+                    "slug": "morocco",
+                    "shortName": "Morocco",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 679352,
+                    "nameCode": "MOR",
+                    "ranking": 8,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4778,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#006600",
+                      "text": "#006600"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "المغرب",
+                        "ru": "Марокко",
+                        "hi": "मोरक्को",
+                        "bn": "মরক্কো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 6,
+                  "order": 2,
+                  "id": 5281213
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876847,
+              "events": [
+                14058096
+              ],
+              "blockId": 3,
+              "seriesStartDateTimestamp": 1767985200,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 4,
+              "result": "away won",
+              "homeTeamScore": "0",
+              "awayTeamScore": "2",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Algeria",
+                    "slug": "algeria",
+                    "shortName": "Algeria",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 295570,
+                    "nameCode": "DZA",
+                    "ranking": 28,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4691,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#23bc55",
+                      "text": "#23bc55"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "الجزائر",
+                        "ru": "Алжир",
+                        "hi": "अल्जीरिया",
+                        "bn": "আলজেরিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 7,
+                  "order": 1,
+                  "id": 5282932
+                },
+                {
+                  "team": {
+                    "name": "Nigeria",
+                    "slug": "nigeria",
+                    "shortName": "Nigeria",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 404677,
+                    "nameCode": "NIG",
+                    "ranking": 26,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4785,
+                    "teamColors": {
+                      "primary": "#39b54a",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "نيجيريا",
+                        "ru": "Нигерия",
+                        "hi": "नाइजीरिया",
+                        "bn": "নাইজেরিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 8,
+                  "order": 2,
+                  "id": 5281487
+                }
+              ],
+              "hasNextRoundLink": true,
+              "eventInProgress": false,
+              "id": 2876848,
+              "events": [
+                14058093
+              ],
+              "blockId": 4,
+              "seriesStartDateTimestamp": 1768060800,
+              "automaticProgression": false
+            }
+          ],
+          "id": 219646
+        },
+        {
+          "order": 3,
+          "type": 2,
+          "description": "Semifinals",
+          "blocks": [
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 1,
+              "result": "home won",
+              "homeTeamScore": "1",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Senegal",
+                    "slug": "senegal",
+                    "shortName": "Senegal",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 420255,
+                    "nameCode": "SEN",
+                    "ranking": 12,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4739,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#047151",
+                      "text": "#047151"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "السنغال",
+                        "ru": "Сенегал",
+                        "hi": "सेनेगल",
+                        "bn": "সেনেগাল"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 1,
+                  "order": 1,
+                  "id": 5284451
+                },
+                {
+                  "team": {
+                    "name": "Egypt",
+                    "slug": "egypt",
+                    "shortName": "Egypt",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 550135,
+                    "nameCode": "EGY",
+                    "ranking": 31,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4758,
+                    "teamColors": {
+                      "primary": "#f00000",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "مصر",
+                        "ru": "Египет",
+                        "hi": "इजिप्ट",
+                        "bn": "মিশর"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 2,
+                  "order": 2,
+                  "id": 5285374
+                }
+              ],
+              "hasNextRoundLink": false,
+              "eventInProgress": false,
+              "id": 2876849,
+              "events": [
+                14058103
+              ],
+              "blockId": 1,
+              "seriesStartDateTimestamp": 1768410000,
+              "automaticProgression": false
+            },
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 2,
+              "result": "home won",
+              "homeTeamScore": "0 (4)",
+              "awayTeamScore": "0 (2)",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Morocco",
+                    "slug": "morocco",
+                    "shortName": "Morocco",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 679352,
+                    "nameCode": "MOR",
+                    "ranking": 8,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4778,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#006600",
+                      "text": "#006600"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "المغرب",
+                        "ru": "Марокко",
+                        "hi": "मोरक्को",
+                        "bn": "মরক্কো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "sourceBlockId": 3,
+                  "order": 1,
+                  "id": 5284502
+                },
+                {
+                  "team": {
+                    "name": "Nigeria",
+                    "slug": "nigeria",
+                    "shortName": "Nigeria",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 404677,
+                    "nameCode": "NIG",
+                    "ranking": 26,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4785,
+                    "teamColors": {
+                      "primary": "#39b54a",
+                      "secondary": "#ffffff",
+                      "text": "#ffffff"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "نيجيريا",
+                        "ru": "Нигерия",
+                        "hi": "नाइजीरिया",
+                        "bn": "নাইজেরিয়া"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "sourceBlockId": 4,
+                  "order": 2,
+                  "id": 5285278
+                }
+              ],
+              "hasNextRoundLink": false,
+              "eventInProgress": false,
+              "id": 2876850,
+              "events": [
+                14058101
+              ],
+              "blockId": 2,
+              "seriesStartDateTimestamp": 1768420800,
+              "automaticProgression": false
+            }
+          ],
+          "id": 219647
+        },
+        {
+          "order": 5,
+          "type": 1,
+          "description": "Final",
+          "blocks": [
+            {
+              "finished": true,
+              "matchesInRound": 1,
+              "order": 1,
+              "result": "home won",
+              "homeTeamScore": "1",
+              "awayTeamScore": "0",
+              "participants": [
+                {
+                  "team": {
+                    "name": "Senegal",
+                    "slug": "senegal",
+                    "shortName": "Senegal",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 420255,
+                    "nameCode": "SEN",
+                    "ranking": 12,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4739,
+                    "teamColors": {
+                      "primary": "#ffffff",
+                      "secondary": "#047151",
+                      "text": "#047151"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "السنغال",
+                        "ru": "Сенегал",
+                        "hi": "सेनेगल",
+                        "bn": "সেনেগাল"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": true,
+                  "order": 1,
+                  "id": 5289330
+                },
+                {
+                  "team": {
+                    "name": "Morocco",
+                    "slug": "morocco",
+                    "shortName": "Morocco",
+                    "gender": "M",
+                    "sport": {
+                      "name": "Football",
+                      "slug": "football",
+                      "id": 1
+                    },
+                    "userCount": 679352,
+                    "nameCode": "MOR",
+                    "ranking": 8,
+                    "disabled": false,
+                    "national": true,
+                    "type": 0,
+                    "id": 4778,
+                    "teamColors": {
+                      "primary": "#ff0000",
+                      "secondary": "#006600",
+                      "text": "#006600"
+                    },
+                    "fieldTranslations": {
+                      "nameTranslation": {
+                        "ar": "المغرب",
+                        "ru": "Марокко",
+                        "hi": "मोरक्को",
+                        "bn": "মরক্কো"
+                      },
+                      "shortNameTranslation": {}
+                    }
+                  },
+                  "winner": false,
+                  "order": 2,
+                  "id": 5289331
+                }
+              ],
+              "hasNextRoundLink": false,
+              "eventInProgress": false,
+              "venue": {
+                "city": {
+                  "name": "Rabat"
+                },
+                "venueCoordinates": {
+                  "latitude": 34.01325,
+                  "longitude": -6.83255
+                },
+                "hidden": true,
+                "slug": "complexe-sportif-moulay-abdellah",
+                "name": "Complexe Sportif Moulay Abdellah",
+                "capacity": 69700,
+                "id": 4250,
+                "fieldTranslations": {
+                  "nameTranslation": {
+                    "ar": "مجمع مولاي عبد الله الرياضي",
+                    "hi": "कॉम्प्लेक्स स्पोर्टिफ़ मौले अब्देल्लाह",
+                    "bn": "কমপ্লেক্স স্পোর্টিফ মৌলে আবদুল্লাহ"
+                  },
+                  "shortNameTranslation": {}
+                },
+                "stadium": {
+                  "name": "Complexe Sportif Moulay Abdellah",
+                  "capacity": 69700
+                }
+              },
+              "id": 2879442,
+              "events": [
+                14058089
+              ],
+              "blockId": 1,
+              "seriesStartDateTimestamp": 1768762800,
+              "automaticProgression": false
+            }
+          ],
+          "id": 219649
+        }
+      ],
+      "type": 1,
+      "showSingleParticipantByeBlocks": false,
+      "hideRoundsWithoutParticipants": false
+    }
+  ]
+}

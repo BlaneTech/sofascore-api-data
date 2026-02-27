@@ -29,8 +29,8 @@ async def get_fixtures(
     status: Optional[MatchStatus] = Query(None, description="Statut du match"),
     round: Optional[int] = Query(None, description="Numéro du round"),
     live: Optional[bool] = Query(None, description="Matchs en cours uniquement"),
-    page: int = Query(1, ge=1, description="Numéro de page"),
-    per_page: int = Query(20, ge=1, le=100, description="Résultats par page"),
+    # page: int = Query(1, ge=1, description="Numéro de page"),
+    # per_page: int = Query(20, ge=1, le=100, description="Résultats par page"),
     # _: None = Depends(verify_api_key),
     db: AsyncSession = Depends(get_db),
     # api_key = Depends(verify_api_key),
@@ -80,8 +80,10 @@ async def get_fixtures(
     total_result = await db.execute(count_query)
     total = total_result.scalar()
     
-    offset = (page - 1) * per_page
-    query = query.order_by(Fixture.date.desc()).offset(offset).limit(per_page)
+    # offset = (page - 1) * per_page
+    query = (query.order_by(Fixture.date.asc())
+            #  .offset(offset).limit(per_page)
+    )
     
     result = await db.execute(query)
     fixtures = result.scalars().all()
@@ -92,12 +94,12 @@ async def get_fixtures(
     return APIResponse(
         success=True,
         data={"fixtures": [fixture.model_dump() for fixture in fixtures_data]},
-        meta=PaginationMeta(
-            page=page,
-            per_page=per_page,
-            total=total,
-            total_pages=(total + per_page - 1) // per_page
-        )
+        # meta=PaginationMeta(
+        #     page=page,
+        #     per_page=per_page,
+        #     total=total,
+        #     total_pages=(total + per_page - 1) // per_page
+        # )
     )
 
 

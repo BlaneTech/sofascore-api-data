@@ -16,8 +16,8 @@ async def get_teams(
     country: Optional[str] = Query(None, description="Filtrer par pays"),
     national: Optional[bool] = Query(None, description="Équipes nationales uniquement"),
     search: Optional[str] = Query(None, description="Rechercher par nom"),
-    page: int = Query(1, ge=1, description="Numéro de page"),
-    per_page: int = Query(20, ge=1, le=100, description="Résultats par page"),
+    # page: int = Query(1, ge=1, description="Numéro de page"),
+    # per_page: int = Query(20, ge=1, le=100, description="Résultats par page"),
     db: AsyncSession = Depends(get_db)
 ):
     # Construire la requête
@@ -43,8 +43,10 @@ async def get_teams(
     total = total_result.scalar()
     
     # Pagination
-    offset = (page - 1) * per_page
-    query = query.offset(offset).limit(per_page).order_by(Team.name)
+    # offset = (page - 1) * per_page
+    query = (query.order_by(Team.name)
+            #  .offset(offset).limit(per_page).order_by(Team.name)
+    )
     
     result = await db.execute(query)
     teams = result.scalars().all()
@@ -55,12 +57,12 @@ async def get_teams(
     return APIResponse(
         success=True,
         data={"teams": [team.model_dump() for team in teams_data]},
-        meta=PaginationMeta(
-            page=page,
-            per_page=per_page,
-            total=total,
-            total_pages=(total + per_page - 1) // per_page
-        )
+        # meta=PaginationMeta(
+        #     page=page,
+        #     per_page=per_page,
+        #     total=total,
+        #     total_pages=(total + per_page - 1) // per_page
+        # )
     )
 
 

@@ -6,6 +6,9 @@ help:
 install: ## Installer dépendances
 	pip install -r requirements.txt
 
+db-init: ## Initialiser DB
+	python -m app.db.models
+
 dev: ## Lancer API en local
 	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
@@ -26,8 +29,9 @@ clean: ## Nettoyer cache Python
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 
-scrape-afcon: ## Ingestion AFCON locale
-	python pipeline/ingest_afcon.py
+scrape-data: ## Ingestion AFCON locale
+	python pipeline/ingest_afcon.py || true
+	python pipeline/ingest_friendlies.py
 
 live-tracker: ## Lancer tracker live local
 	python -m app.live_tracker
@@ -38,74 +42,55 @@ live-status: ## Voir matchs en cache Redis
 live-clear: ## Vider cache Redis
 	redis-cli FLUSHDB
 
-# docker-init: ## Initialiser Docker (première fois)
-# 	mkdir -p airflow/dags airflow/logs airflow/plugins airflow/config
-# 	cp .env.example .env
-# 	@echo "Éditer .env avec tes valeurs avant docker-up"
 
-# docker-up: ## Démarrer tous les conteneurs
-# 	docker-compose up -d
+PROJECT_ROOT := $(shell pwd)
 
-# docker-down: ## Arrêter conteneurs
-# 	docker-compose down
+AIRFLOW_HOME := $(PROJECT_ROOT)/airflow
+VENV_DIR     := $(PROJECT_ROOT)/.venv-airflow
+AIRFLOW_BIN  := $(VENV_DIR)/bin/airflow
+VENV_PATH    := $(VENV_DIR)/bin
 
-# docker-restart: ## Redémarrer conteneurs
-# 	docker-compose restart
+airflow-init:
+	@echo "🔧 Initializing Airflow..."
+	PATH=$(VENV_PATH):$$PATH \
+	AIRFLOW_HOME=$(AIRFLOW_HOME) \
+	$(AIRFLOW_BIN) db migrate && \
+	PATH=$(VENV_PATH):$$PATH \
+	AIRFLOW_HOME=$(AIRFLOW_HOME) \
+	$(AIRFLOW_BIN) users create \
+		--username admin \
+		--password admin \
+		--firstname Admin \
+		--lastname Admin \
+		--role Admin \
+		--email admin@example.com
 
-# docker-logs: ## Logs temps réel
-# 	docker-compose logs -f
+airflow-webserver:
+	PATH=$(VENV_PATH):$$PATH \
+	AIRFLOW_HOME=$(AIRFLOW_HOME) \
+	$(AIRFLOW_BIN) webserver --port 8080
 
-# docker-logs-api: ## Logs API seulement
-# 	docker-compose logs -f api
+airflow-scheduler:
+	PATH=$(VENV_PATH):$$PATH \
+	AIRFLOW_HOME=$(AIRFLOW_HOME) \
+	$(AIRFLOW_BIN) scheduler
 
-# docker-logs-live: ## Logs live tracker
-# 	docker-compose logs -f live_tracker
+airflow-start:
+	make -j2 airflow-webserver airflow-scheduler
 
-# docker-logs-airflow: ## Logs Airflow
-# 	docker-compose logs -f airflow-scheduler
+airflow-reset:
+	rm -rf $(AIRFLOW_HOME)/airflow.db
+	rm -rf $(AIRFLOW_HOME)/logs
 
-# docker-ps: ## Statut conteneurs
-# 	docker-compose ps
 
-# docker-rebuild: ## Rebuild après modif code
-# 	docker-compose build --no-cache
-# 	docker-compose up -d
+docker-up:
+	docker-compose -f docker/docker-compose.yml up -d
 
-# docker-clean: ## Supprimer tout (+ volumes)
-# 	docker-compose down -v
+docker-build:
+	docker compose -f docker/docker-compose.yml build
 
-# docker-test: ## Tests dans Docker
-# 	docker-compose exec api pytest tests/ -v
+docker-down:
+	docker compose -f docker/docker-compose.yml down
 
-# docker-shell-api: ## Shell dans conteneur API
-# 	docker-compose exec api bash
-
-# docker-shell-airflow: ## Shell dans Airflow
-# 	docker-compose exec airflow-webserver bash
-
-# db-migrate: ## Migration DB dans Docker
-# 	docker-compose exec api alembic upgrade head
-
-# airflow-dags: ## Lister DAGs Airflow
-# 	docker-compose exec airflow-webserver airflow dags list
-
-# airflow-trigger-afcon: ## Déclencher DAG AFCON manuellement
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_afcon
-
-# airflow-trigger-multi: ## Déclencher DAG multi-compétitions
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_multi_competitions
-
-# airflow-trigger-fixtures: ## Trigger DAG fixtures
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_fixtures
-
-# airflow-trigger-lineups: ## Trigger DAG lineups
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_lineups
-
-# airflow-trigger-details: ## Trigger DAG match details
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_match_details
-
-# airflow-trigger-standings: ## Trigger DAG standings
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_standings_cupstree
-
-# airflow-trigger-stats: ## Trigger DAG season stats
-# 	docker-compose exec airflow-scheduler airflow dags trigger ingest_season_statistics
+docker-init:
+	docker compose -f docker/docker-compose.yml up airflow-init

@@ -7,7 +7,8 @@ app/tests/__pycache__/
 app/utils/__pycache__/
 app/db/__pycache__/
 pipeline/__pycache__/
-
+notebooks/
+pipeline/_backups/
 pipeline/new_models.py
 pipeline/ingestion.py
 tests/
